@@ -1,3 +1,6 @@
+# 6/8/20
+# Compares omni and normal for log, batch-corrected metaphlan
+
 library(tidyverse)
 data_dir <- "Data"
 graph_dir <- "Graphs/Metaphlan"
