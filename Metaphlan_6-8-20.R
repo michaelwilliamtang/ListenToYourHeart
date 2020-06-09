@@ -1,6 +1,6 @@
 library(tidyverse)
 data_dir <- "Data"
-graph_dir <- "Graphs"
+graph_dir <- "Graphs/Metaphlan"
 summarize <- dplyr::summarize
 
 # read metaphlan
@@ -26,19 +26,57 @@ phy <- met_phyla_df %>%
   summarize(mean_val = mean(val)) %>%
   arrange(desc(mean_val))
 top_5_phy <- phy$taxa[1:5]
-# plot phyla
-met_phyla_df <- met_phyla_df %>%
+
+# plot most diff phyla, omni vs reg
+comp_phyla <- met_phyla_df %>%
+  group_by(taxa, collection_type) %>%
+  summarize(mean_val = mean(val)) %>%
+  spread(collection_type, mean_val) %>%
+  mutate(collection_diff = omni - regular,
+         collection_diff_abs = abs(collection_diff)) %>%
+  arrange(collection_diff_abs)
+diff_20_phy <- comp_phyla$taxa[1:20]
+comp_phyla <- comp_phyla %>% filter(taxa %in% diff_20_phy)
+pdf(file.path(graph_dir, "Phyla_By_Collection_Diff.pdf"), width = 6, height = 4)
+comp_phyla %>% ggplot(aes(x = reorder(taxa, -collection_diff), y = collection_diff)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  xlab("Phylum") +
+  ylab("Relative Abundance Diff (omni - reg)") +
+  theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1))
+dev.off()
+
+# plot top phyla
+met_phyla_df2 <- met_phyla_df %>%
   filter(taxa %in% top_5_phy) %>%
   group_by(taxa, collection_type) %>%
   summarize(mean_val = mean(val)) %>%
   arrange(mean_val)
 # View(met_phyla_df)
-pdf(file.path(graph_dir, "Top_5_Phyla.pdf"), width = 6, height = 4)
-met_phyla_df %>% ggplot(aes(x = reorder(taxa, -mean_val), y = mean_val, fill = collection_type)) +
+pdf(file.path(graph_dir, "Top_5_Phyla_Side.pdf"), width = 6, height = 4)
+met_phyla_df2 %>% ggplot(aes(x = reorder(taxa, -mean_val), y = mean_val, fill = collection_type)) +
   geom_bar(position = "dodge", stat = "identity") +
   xlab("Phylum") +
   ylab("Relative Abundance") +
-  theme(axis.text.x = element_text(size=10, angle=45, hjust = 1))
+  theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1))
+dev.off()
+pdf(file.path(graph_dir, "Top_5_Phyla_Stack.pdf"), width = 6, height = 4)
+met_phyla_df2 %>% ggplot(aes(x = reorder(taxa, -mean_val), y = mean_val, fill = collection_type)) +
+  geom_bar(position = "stack", stat = "identity") +
+  xlab("Phylum") +
+  ylab("Relative Abundance") +
+  theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1))
+dev.off()
+met_phyla_df2 <- met_phyla_df %>%
+  filter(taxa %in% top_5_phy) %>%
+  group_by(collection_type) %>%
+  summarize(mean_val = mean(val)) %>%
+  arrange(mean_val)
+pdf(file.path(graph_dir, "Phyla_Aggregated.pdf"), width = 6, height = 4)
+met_phyla_df2 %>% ggplot(aes(x = reorder(collection_type, -mean_val), y = mean_val)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  xlab("Collection Type") +
+  ylab("Relative Abundance") +
+  theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1))
 dev.off()
 
 # get top 20 genera
@@ -57,18 +95,56 @@ gen <- met_genera_df %>%
   summarize(mean_val = mean(val)) %>%
   arrange(desc(mean_val))
 top_5_gen <- gen$taxa[1:20]
-# plot genera
-met_genera_df <- met_genera_df %>%
+
+# plot most diff genera, omni vs reg
+comp_genera <- met_genera_df %>%
+  group_by(taxa, collection_type) %>%
+  summarize(mean_val = mean(val)) %>%
+  spread(collection_type, mean_val) %>%
+  mutate(collection_diff = omni - regular,
+         collection_diff_abs = abs(collection_diff)) %>%
+  arrange(collection_diff_abs)
+diff_20_gen <- comp_genera$taxa[1:20]
+comp_genera <- comp_genera %>% filter(taxa %in% diff_20_gen)
+pdf(file.path(graph_dir, "Genera_By_Collection_Diff.pdf"), width = 6, height = 4)
+comp_genera %>% ggplot(aes(x = reorder(taxa, -collection_diff), y = collection_diff)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  xlab("Genus") +
+  ylab("Relative Abundance Diff (omni - reg)") +
+  theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1))
+dev.off()
+
+# plot top genera
+met_genera_df2 <- met_genera_df %>%
   filter(taxa %in% top_5_gen) %>%
   group_by(taxa, collection_type) %>%
   summarize(mean_val = mean(val)) %>%
   arrange(mean_val)
 # View(met_genera_df)
-pdf(file.path(graph_dir, "Top_20_Genera.pdf"), width = 6, height = 4)
-met_genera_df %>% ggplot(aes(x = reorder(taxa, -mean_val), y = mean_val, fill = collection_type)) +
+pdf(file.path(graph_dir, "Top_20_Genera_Side.pdf"), width = 6, height = 4)
+met_genera_df2 %>% ggplot(aes(x = reorder(taxa, -mean_val), y = mean_val, fill = collection_type)) +
   geom_bar(position = "dodge", stat = "identity") +
   xlab("Genus") +
   ylab("Relative Abundance") +
-  theme(axis.text.x = element_text(size=10, angle=45, hjust = 1))
+  theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1))
+dev.off()
+pdf(file.path(graph_dir, "Top_20_Genera_Stack.pdf"), width = 6, height = 4)
+met_genera_df2 %>% ggplot(aes(x = reorder(taxa, -mean_val), y = mean_val, fill = collection_type)) +
+  geom_bar(position = "stack", stat = "identity") +
+  xlab("Genus") +
+  ylab("Relative Abundance") +
+  theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1))
+dev.off()
+met_genera_df2 <- met_genera_df %>%
+  filter(taxa %in% top_5_gen) %>%
+  group_by(collection_type) %>%
+  summarize(mean_val = mean(val)) %>%
+  arrange(mean_val)
+pdf(file.path(graph_dir, "Genera_Aggregated.pdf"), width = 6, height = 4)
+met_genera_df2 %>% ggplot(aes(x = reorder(collection_type, -mean_val), y = mean_val)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  xlab("Collection Type") +
+  ylab("Relative Abundance") +
+  theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1))
 dev.off()
 
