@@ -17,8 +17,8 @@ pcl_df <- pcl_df %>%
 pathways <- grep("\\.\\.", colnames(pcl_df), perl = T)
 pcl_pathways_df <- pcl_df %>% filter(omni_comparison == "comparison") %>%
   select(participant_id, collection_type, pathways)
-pcl_pathways_df$participant_id[16] <- paste(pcl_pathways_df$participant_id[16], "b", sep = "") # anomaly participant (dup)
-pcl_pathways_df$participant_id[18] <- paste(pcl_pathways_df$participant_id[18], "b", sep = "")
+pcl_pathways_df$participant_id[16] <- paste(pcl_pathways_df$participant_id[16], "b", sep = "_") # anomaly participant (dup)
+pcl_pathways_df$participant_id[18] <- paste(pcl_pathways_df$participant_id[18], "b", sep = "_")
 pcl_pathways_df <- pcl_pathways_df %>%
   gather("pathway", "val", -c(participant_id, collection_type))
 pcl_pathways_df$val <- as.numeric(pcl_pathways_df$val)

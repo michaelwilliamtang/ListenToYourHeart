@@ -7,6 +7,14 @@ graph_dir <- "Graphs/PCL"
 summarize <- dplyr::summarize
 desc <- "Log_Unbatch"
 
+# get part ids
+pcl_df <- read.table(file.path(data_dir, "hf-abundance-final-combat.pcl"), sep = "\t", stringsAsFactors = FALSE, row.names = 1)
+pcl_df <- pcl_df %>% 
+  as.matrix() %>% t() %>% 
+  as_tibble()
+part_ids <- pcl_df$participant_id
+names(part_ids) <- pcl_df$study_id
+
 # read pcl
 pcl_df <- read.table(file.path(data_dir, "pathabundance_april_30.csv"), sep = ",", stringsAsFactors = FALSE)
 pcl_df$V1[50] <- paste(pcl_df$V1[50], "b", sep = "_") # dup row
@@ -18,7 +26,8 @@ pcl_df <- pcl_df %>%
   select(-V1) %>%
   as.matrix() %>% t() %>%
   as_tibble()
-pcl_df$participant_id <- pcl_df$study_id %>% str_sub(1,6)
+pcl_df$participant_id <- part_ids[pcl_df$study_id]
+pcl_df <- pcl_df %>% na.omit()
 # pcl_df %>% select(study_id, participant_id) %>% View()
 # View(pcl_df[,c(1, 1859)])
 # View(pcl_df[,1:100])

@@ -19,8 +19,8 @@ met_phyla_df <- metaphlan_df %>% filter(omni_comparison == "comparison") %>%
   select(participant_id, collection_type, phyla)
 colnames(met_phyla_df) <- met_phyla_df %>% colnames() %>%
   str_replace(".*p__", "")
-met_phyla_df$participant_id[16] <- paste(met_phyla_df$participant_id[16], "b", sep = "") # anomaly participant (dup)
-met_phyla_df$participant_id[18] <- paste(met_phyla_df$participant_id[18], "b", sep = "")
+met_phyla_df$participant_id[16] <- paste(met_phyla_df$participant_id[16], "b", sep = "_") # anomaly participant (dup)
+met_phyla_df$participant_id[18] <- paste(met_phyla_df$participant_id[18], "b", sep = "_")
 met_phyla_df <- met_phyla_df %>%
   gather("taxa", "val", -c(participant_id, collection_type))
 met_phyla_df$val <- as.numeric(met_phyla_df$val)
@@ -88,8 +88,8 @@ met_genera_df <- metaphlan_df %>% filter(omni_comparison == "comparison") %>%
   select(participant_id, collection_type, genera)
 colnames(met_genera_df) <- met_genera_df %>% colnames() %>%
   str_replace(".*g__", "")
-met_genera_df$participant_id[16] <- paste(met_genera_df$participant_id[16], "b", sep = "") # anomaly participant (dup)
-met_genera_df$participant_id[18] <- paste(met_genera_df$participant_id[18], "b", sep = "")
+met_genera_df$participant_id[16] <- paste(met_genera_df$participant_id[16], "b", sep = "_") # anomaly participant (dup)
+met_genera_df$participant_id[18] <- paste(met_genera_df$participant_id[18], "b", sep = "_")
 met_genera_df <- met_genera_df %>%
   gather("taxa", "val", -c(participant_id, collection_type))
 met_genera_df$val <- as.numeric(met_genera_df$val)

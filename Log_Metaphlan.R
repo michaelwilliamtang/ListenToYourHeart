@@ -7,6 +7,14 @@ graph_dir <- "Graphs/Metaphlan"
 summarize <- dplyr::summarize
 desc <- "Log_Unbatch"
 
+# get part ids
+metaphlan_df <- read.table(file.path(data_dir, "hf-metaphlan-final-combat.pcl"), sep = "\t", stringsAsFactors = FALSE, row.names = 1)
+metaphlan_df <- metaphlan_df %>%
+  as.matrix() %>% t() %>%
+  as_tibble()
+part_ids <- metaphlan_df$participant_id
+names(part_ids) <- metaphlan_df$study_id
+
 # read metaphlan
 metaphlan_df <- read.table(file.path(data_dir, "metaphlan2_april_30.csv"), sep = ",", stringsAsFactors = FALSE)
 metaphlan_df$V1[50] <- paste(metaphlan_df$V1[50], "b", sep = "_") # dup row
@@ -15,7 +23,8 @@ metaphlan_df <- metaphlan_df %>%
   select(-V1) %>%
   as.matrix() %>% t() %>%
   as_tibble()
-metaphlan_df$participant_id <- metaphlan_df$study_id %>% str_sub(1,6)
+metaphlan_df$participant_id <- part_ids[metaphlan_df$study_id]
+metaphlan_df <- metaphlan_df %>% na.omit()
 # metaphlan_df %>% select(study_id, participant_id) %>% View()
 # View(metaphlan_df[,1:100])
 
