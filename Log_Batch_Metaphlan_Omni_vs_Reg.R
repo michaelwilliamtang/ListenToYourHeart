@@ -125,7 +125,7 @@ met_genera_df2 %>% ggplot(aes(x = study_id, y = mean_val, fill = taxa)) +
   xlab("Genus") +
   ylab("Relative Abundance") +
   theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)) +
-  guides(fill = guide_legend(title = "Phylum"))
+  guides(fill = guide_legend(title = "Genus"))
 dev.off()
 met_genera_df2 <- met_genera_df %>%
   filter(taxa %in% top_5_gen) %>%
@@ -138,5 +138,5 @@ met_genera_df2 %>% ggplot(aes(x = collection_type, y = mean_val, fill = taxa)) +
   xlab("Collection Type") +
   ylab("Relative Abundance") +
   theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)) +
-  guides(fill = guide_legend(title = "Phylum"))
+  guides(fill = guide_legend(title = "Genus"))
 dev.off()
