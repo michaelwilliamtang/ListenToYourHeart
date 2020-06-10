@@ -17,7 +17,7 @@ metaphlan_df <- metaphlan_df %>%
 # metaphlan_df %>% select(study_id, participant_id) %>% View()
 # View(metaphlan_df[,1:100])
 metaphlan_df$study_id <- str_replace_all(metaphlan_df$study_id, " ", "")
-taxa <- grep(".*__[A-Za-z]+$", colnames(metaphlan_df), perl = T)
+taxa <- grep("__", colnames(metaphlan_df), perl = T)
 met_metadata <- metaphlan_df %>% select(which(!grepl(".*__[A-Za-z]+$", colnames(metaphlan_df), perl = T)))
 met_taxa_df <- metaphlan_df %>%
   select(study_id, collection_type, omni_comparison, taxa)
@@ -37,7 +37,7 @@ metaphlan_df <- metaphlan_df %>%
   as.matrix() %>% t() %>%
   as_tibble()
 # View(metaphlan_df[,1:100])
-taxa <- grep(".*__[A-Za-z]+$", colnames(metaphlan_df), perl = T)
+taxa <- grep("__", colnames(metaphlan_df), perl = T)
 met_taxa_df2 <- metaphlan_df %>%
   select(study_id, participant_id, collection_type, omni_comparison, taxa)
 # met_taxa_df2$participant_id[16] <- paste(met_taxa_df2$participant_id[16], "b", sep = "_") # anomaly participant (dup)
@@ -54,6 +54,13 @@ batched_ids <- met_taxa_df2$study_id %>% unique()
 valid_ids <- unbatched_ids[which(unbatched_ids %in% batched_ids)]
 met_taxa_df <- met_taxa_df %>% filter(study_id %in% valid_ids)
 met_taxa_df2 <- met_taxa_df2 %>% filter(study_id %in% valid_ids)
+
+# take only taxa that have both batched and unbatched versions
+unbatched_taxa <- met_taxa_df$taxa %>% unique()
+batched_taxa <- met_taxa_df2$taxa %>% unique()
+valid_taxa <- unbatched_taxa[which(unbatched_taxa %in% batched_taxa)]
+met_taxa_df <- met_taxa_df %>% filter(taxa %in% valid_taxa)
+met_taxa_df2 <- met_taxa_df2 %>% filter(taxa %in% valid_taxa)
 
 # check before merge
 table(met_taxa_df$study_id == met_taxa_df2$study_id)
