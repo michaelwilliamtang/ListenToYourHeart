@@ -3,7 +3,7 @@
 
 library(tidyverse)
 data_dir <- "Data/Tidy"
-graph_dir <- "Graphs/PCL/Batched_Omni_vs_Regular_Scaled"
+graph_dir <- "Graphs/PCL/Unbatched_Omni_vs_Regular_Scaled"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "pcl"
@@ -45,6 +45,7 @@ omni_reg_comp <- function(pcl_lab, sing_lab, N, comp_N, is_batch) {
   # plot top phyla
   pcl_pathway_df2 <- pcl_pathway_df %>%
     filter(pathway %in% top_N_phy) %>%
+    mutate(study_id = paste(study_id, collection_type, sep = "_")) %>%
     group_by(pathway, study_id) %>%
     summarize(mean_val = mean(val)) %>%
     arrange(mean_val)
@@ -73,4 +74,4 @@ omni_reg_comp <- function(pcl_lab, sing_lab, N, comp_N, is_batch) {
 }
 
 ### comparing for pcl, pathways
-omni_reg_comp(pcl_lab = "Pathways", sing_lab = "Pathway", N = 40, comp_N = 20, is_batch = T)
+omni_reg_comp(pcl_lab = "Pathways", sing_lab = "Pathway", N = 40, comp_N = 20, is_batch = F)

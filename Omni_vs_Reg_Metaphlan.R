@@ -3,7 +3,7 @@
 
 library(tidyverse)
 data_dir <- "Data/Tidy"
-graph_dir <- "Graphs/Metaphlan/Batched_Omni_vs_Regular_Scaled"
+graph_dir <- "Graphs/Metaphlan/Unbatched_Omni_vs_Regular_Scaled"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "metaphlan"
@@ -47,6 +47,7 @@ omni_reg_comp <- function(met_lev, met_reg, met_lab, sing_lab, N, comp_N, is_bat
   # plot top phyla
   met_phyla_df2 <- met_phyla_df %>%
     filter(taxa %in% top_N_phy) %>%
+    mutate(study_id = paste(study_id, collection_type, sep = "_")) %>%
     group_by(taxa, study_id) %>%
     summarize(mean_val = mean(val)) %>%
     arrange(mean_val)
@@ -75,7 +76,7 @@ omni_reg_comp <- function(met_lev, met_reg, met_lab, sing_lab, N, comp_N, is_bat
 }
 
 ### comparing for metaphlan, phyla
-omni_reg_comp(met_lev = "phylum", met_reg = ".*p__", met_lab = "Phyla", sing_lab = "Phylum", N = 5, comp_N = 20, is_batch = T)
+omni_reg_comp(met_lev = "phylum", met_reg = ".*p__", met_lab = "Phyla", sing_lab = "Phylum", N = 5, comp_N = 20, is_batch = F)
 
 ### comparing for metaphlan, genera
-omni_reg_comp(met_lev = "genus", met_reg = ".*g__", met_lab = "Genera", sing_lab = "Genus", N = 20, comp_N = 20, is_batch = T)
+omni_reg_comp(met_lev = "genus", met_reg = ".*g__", met_lab = "Genera", sing_lab = "Genus", N = 20, comp_N = 20, is_batch = F)

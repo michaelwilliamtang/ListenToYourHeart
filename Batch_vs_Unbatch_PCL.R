@@ -47,6 +47,7 @@ batch_vs_unbatch_comp <- function(pcl_lab, sing_lab, N, comp_N, coll_type) {
   # plot top phyla
   pcl_pathway_df2 <- pcl_pathway_df %>%
     filter(pathway %in% top_N_phy) %>%
+    mutate(study_id = paste(study_id, batched, sep = "_")) %>%
     group_by(pathway, study_id) %>%
     summarize(mean_val = mean(val)) %>%
     arrange(mean_val)
@@ -78,7 +79,7 @@ batch_vs_unbatch_comp <- function(pcl_lab, sing_lab, N, comp_N, coll_type) {
 batch_vs_unbatch_comp(pcl_lab = "Pathways", sing_lab = "Pathway", N = 40, comp_N = 20, coll_type = "omni")
 
 ### now, same but with regular
-graph_dir <- "Graphs/PCL/Regular_Batched_vs_Unbatched"
+graph_dir <- "Graphs/PCL/Regular_Batched_vs_Unbatched_Scaled"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 
 ### comparing for pcl, pathways

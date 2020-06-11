@@ -8,7 +8,7 @@ if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "metaphlan"
 
-load(file.path(data_dir, paste("Tidy_Log_Scaled_", ds1, ".RData", sep = "")))
+load(file.path(data_dir, paste("Tidy_Scaled_", ds1, ".RData", sep = "")))
 metaphlan_df <- met_taxa_df
 
 batch_unbatch_comp <- function(met_lev, met_reg, met_lab, sing_lab, N, comp_N, coll_type) {
@@ -86,7 +86,7 @@ batch_unbatch_comp(met_lev = "genus", met_reg = ".*g__", met_lab = "Genera", sin
               comp_N = 20, coll_type = "omni")
 
 ### now, same but with regular
-graph_dir <- "Graphs/Metaphlan/Regular_Batched_vs_Unbatched"
+graph_dir <- "Graphs/Metaphlan/Regular_Batched_vs_Unbatched_Scaled"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 
 ### comparing for metaphlan, phyla
