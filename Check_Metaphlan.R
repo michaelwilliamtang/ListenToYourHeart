@@ -3,12 +3,12 @@
 
 library(tidyverse)
 data_dir <- "Data/Tidy"
-graph_dir <- "Graphs/Metaphlan/Check_Distribution"
+graph_dir <- "Graphs/Metaphlan/Check_Distribution_Scaled"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "metaphlan"
 
-load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
+load(file.path(data_dir, paste("Tidy_Scaled_", ds1, ".RData", sep = "")))
 metaphlan_df <- met_taxa_df
 
 check_distribution <- function(met_lev, met_reg, met_lab, is_batch = F, coll_type = "omni") {

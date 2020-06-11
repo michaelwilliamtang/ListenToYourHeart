@@ -80,4 +80,9 @@ met_taxa_df <- rbind(met_taxa_df, met_taxa_df2 %>% select(-batch_val))
 t_levels <- c("kingdom", "phylum", "class", "order", "family", "genus", "species", "strain")
 met_taxa_df$level <- t_levels[str_count(met_taxa_df$taxa, "__")]
 
-save(met_taxa_df, comp_batch_taxa, met_metadata, file = file.path(save_dir, "Tidy_Metaphlan.RData"))
+save(met_taxa_df, met_metadata, file = file.path(save_dir, "Tidy_Log_Metaphlan.RData"))
+met_taxa_df$level <- t_levels[str_count(met_taxa_df$taxa, "__")]
+met_taxa_df$val <- 2 ^ met_taxa_df2$val - 1
+save(met_taxa_df, met_metadata, file = file.path(save_dir, "Tidy_Metaphlan.RData"))
+met_taxa_df$val <- met_taxa_df2$val / 100
+save(met_taxa_df, met_metadata, file = file.path(save_dir, "Tidy_Scaled_Metaphlan.RData"))

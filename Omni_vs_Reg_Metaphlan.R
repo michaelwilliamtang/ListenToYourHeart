@@ -3,12 +3,12 @@
 
 library(tidyverse)
 data_dir <- "Data/Tidy"
-graph_dir <- "Graphs/Metaphlan/Batched_Omni_vs_Regular"
+graph_dir <- "Graphs/Metaphlan/Batched_Omni_vs_Regular_Scaled"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "metaphlan"
 
-load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
+load(file.path(data_dir, paste("Tidy_Scaled_", ds1, ".RData", sep = "")))
 metaphlan_df <- met_taxa_df
 
 omni_reg_comp <- function(met_lev, met_reg, met_lab, sing_lab, N, comp_N, is_batch) {

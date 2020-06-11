@@ -88,4 +88,8 @@ pcl_pathway_df2$batch <- T
 pcl_pathway_df2$val <- pcl_pathway_df2$batch_val
 pcl_pathway_df <- rbind(pcl_pathway_df, pcl_pathway_df2 %>% select(-batch_val))
 
-save(pcl_pathway_df, comp_batch_pathway, pcl_metadata, file = file.path(save_dir, "Tidy_PCL.RData"))
+save(pcl_pathway_df, pcl_metadata, file = file.path(save_dir, "Tidy_Log_PCL.RData"))
+pcl_pathway_df$val <- 2 ^ pcl_pathway_df$val - 1
+save(pcl_pathway_df, pcl_metadata, file = file.path(save_dir, "Tidy_PCL.RData"))
+pcl_pathway_df$val <- pcl_pathway_df$val / 10
+save(pcl_pathway_df, pcl_metadata, file = file.path(save_dir, "Tidy_Scaled_PCL.RData"))
