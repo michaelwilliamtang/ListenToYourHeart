@@ -24,8 +24,8 @@ pcl_df <- pcl_df %>%
 # pcl_df %>% select(study_id, participant_id) %>% View()
 # View(pcl_df[,1:100])
 pcl_df$study_id <- str_replace_all(pcl_df$study_id, " ", "")
-pathways <- grep("\\.\\.", full_names, perl = T)
-pcl_metadata <- pcl_df %>% select(which(!grepl("\\.\\.", full_names, perl = T)))
+pathways <- 184:ncol(pcl_df)
+pcl_metadata <- pcl_df %>% select(1:183)
 pcl_pathway_df <- pcl_df %>%
   select(study_id, collection_type, omni_comparison, pathways)
 # pcl_pathway_df$participant_id[16] <- paste(pcl_pathway_df$participant_id[16], "b", sep = "_") # anomaly participant (dup)
@@ -46,7 +46,7 @@ pcl_df <- pcl_df %>%
   as.matrix() %>% t() %>%
   as_tibble()
 # View(pcl_df[,1:100])
-pathways <- grep("\\.\\.", colnames(pcl_df), perl = T)
+pathways <- 184:ncol(pcl_df)
 pcl_pathway_df2 <- pcl_df %>%
   select(study_id, participant_id, collection_type, omni_comparison, pathways)
 # pcl_pathway_df2$participant_id[16] <- paste(pcl_pathway_df2$participant_id[16], "b", sep = "_") # anomaly participant (dup)

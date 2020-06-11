@@ -17,8 +17,8 @@ metaphlan_df <- metaphlan_df %>%
 # metaphlan_df %>% select(study_id, participant_id) %>% View()
 # View(metaphlan_df[,1:100])
 metaphlan_df$study_id <- str_replace_all(metaphlan_df$study_id, " ", "")
-taxa <- grep("__", colnames(metaphlan_df), perl = T)
-met_metadata <- metaphlan_df %>% select(which(!grepl(".*__[A-Za-z]+$", colnames(metaphlan_df), perl = T)))
+taxa <- 183:ncol(metaphlan_df)
+met_metadata <- metaphlan_df %>% select(1:182)
 met_taxa_df <- metaphlan_df %>%
   select(study_id, collection_type, omni_comparison, taxa)
 # met_taxa_df$participant_id[16] <- paste(met_taxa_df$participant_id[16], "b", sep = "_") # anomaly participant (dup)
@@ -37,7 +37,7 @@ metaphlan_df <- metaphlan_df %>%
   as.matrix() %>% t() %>%
   as_tibble()
 # View(metaphlan_df[,1:100])
-taxa <- grep("__", colnames(metaphlan_df), perl = T)
+taxa <- 183:ncol(metaphlan_df)
 met_taxa_df2 <- metaphlan_df %>%
   select(study_id, participant_id, collection_type, omni_comparison, taxa)
 # met_taxa_df2$participant_id[16] <- paste(met_taxa_df2$participant_id[16], "b", sep = "_") # anomaly participant (dup)
@@ -75,5 +75,9 @@ met_taxa_df$batch <- F
 met_taxa_df2$batch <- T
 met_taxa_df2$val <- met_taxa_df2$batch_val
 met_taxa_df <- rbind(met_taxa_df, met_taxa_df2 %>% select(-batch_val))
+
+# add taxum level info
+t_levels <- c("kingdom", "phylum", "class", "order", "family", "genus", "species", "strain")
+met_taxa_df$level <- t_levels[str_count(met_taxa_df$taxa, "__")]
 
 save(met_taxa_df, comp_batch_taxa, met_metadata, file = file.path(save_dir, "Tidy_Metaphlan.RData"))
