@@ -82,7 +82,7 @@ met_taxa_df$level <- t_levels[str_count(met_taxa_df$taxa, "__")]
 
 save(met_taxa_df, met_metadata, file = file.path(save_dir, "Tidy_Log_Metaphlan.RData"))
 met_taxa_df$level <- t_levels[str_count(met_taxa_df$taxa, "__")]
-met_taxa_df$val <- 2 ^ met_taxa_df2$val - 1
+met_taxa_df$val <- 2 ^ met_taxa_df$val - 1
 save(met_taxa_df, met_metadata, file = file.path(save_dir, "Tidy_Metaphlan.RData"))
-met_taxa_df$val <- met_taxa_df2$val / 100
+met_taxa_df$val <- met_taxa_df$val / 100
 save(met_taxa_df, met_metadata, file = file.path(save_dir, "Tidy_Scaled_Metaphlan.RData"))
