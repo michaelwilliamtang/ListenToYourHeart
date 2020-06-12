@@ -32,6 +32,7 @@ met_taxa_df$val <- as.numeric(met_taxa_df$val)
 met_taxa_df$val <- log2(met_taxa_df$val + 1) # allows for 0's
 met_taxa_df$omni_comparison[which(met_taxa_df$omni_comparison == "")] <- "no"
 met_metadata$omni_comparison[which(met_metadata$omni_comparison == "")] <- "no"
+unbatched_meta_df$omni_comparison[which(unbatched_meta_df$omni_comparison == "")] <- "no"
 # clean spread df too
 colnames(unbatched_spread_df) <- colnames(unbatched_spread_df) %>%
   str_replace_all("\\|", "\\.")
@@ -50,6 +51,8 @@ metaphlan_df <- metaphlan_df %>%
 taxa <- 183:ncol(metaphlan_df)
 met_taxa_df2 <- metaphlan_df %>%
   select(study_id, participant_id, collection_type, omni_comparison, taxa)
+unbatched_part_ids <- met_taxa_df2$participant_id # since unbatched data did not have any, must borrow
+names(unbatched_part_ids) <- met_taxa_df2$study_id
 # met_taxa_df2$participant_id[16] <- paste(met_taxa_df2$participant_id[16], "b", sep = "_") # anomaly participant (dup)
 # met_taxa_df2$participant_id[18] <- paste(met_taxa_df2$participant_id[18], "b", sep = "_")
 met_taxa_df2 <- met_taxa_df2 %>%
@@ -90,14 +93,21 @@ met_taxa_df <- rbind(met_taxa_df, met_taxa_df2 %>% select(-batch_val))
 t_levels <- c("kingdom", "phylum", "class", "order", "family", "genus", "species", "strain")
 met_taxa_df$level <- t_levels[str_count(met_taxa_df$taxa, "__")]
 
+# add part ids to unbatched
+unbatched_meta_df <- unbatched_meta_df %>%
+  mutate(participant_id = unbatched_part_ids[study_id])
+
+# save
 tmp <- unbatched_spread_df
 unbatched_spread_df <- cbind(unbatched_meta_df, tmp)
 save(met_taxa_df, met_metadata, unbatched_spread_df, file = file.path(save_dir, "Tidy_Log_Metaphlan.RData"))
+
 met_taxa_df$level <- t_levels[str_count(met_taxa_df$taxa, "__")]
 met_taxa_df$val <- 2 ^ met_taxa_df$val - 1
 tmp <- 2 ^ tmp - 1
 unbatched_spread_df <- cbind(unbatched_meta_df, tmp)
 save(met_taxa_df, met_metadata, unbatched_spread_df, file = file.path(save_dir, "Tidy_Metaphlan.RData"))
+
 met_taxa_df$val <- met_taxa_df$val / 100
 tmp <- tmp / 100
 unbatched_spread_df <- cbind(unbatched_meta_df, tmp)
