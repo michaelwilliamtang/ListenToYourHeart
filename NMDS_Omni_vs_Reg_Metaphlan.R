@@ -10,7 +10,7 @@ if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "metaphlan"
 set.seed(10)
-desc <- "Omnigene vs Regular, NMDS (Bray-Curtis Distance)"
+desc <- "Omnigene vs Regular for Unbatched Samples\nNMDS (Bray-Curtis Distance)"
 # library(icesTAF)
 # library(metaMA)
 # library(lme4)
@@ -20,6 +20,8 @@ load(file.path(data_dir, paste("Tidy_Scaled_", ds1, ".RData", sep = "")))
 metaphlan_df <- met_taxa_df
 
 nmds_omni_reg_comp <- function(met_lev, met_reg, met_lab, sing_lab, N, is_batch) {
+  print(met_lab)
+  
   graph_dir2 <- file.path(graph_dir, paste("Top", N, met_lab, sep = "_"))
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
   
@@ -48,10 +50,12 @@ nmds_omni_reg_comp <- function(met_lev, met_reg, met_lab, sing_lab, N, is_batch)
     select(participant_id, collection_type)
 
   # get nmds
+  print("Elbow")
   pdf(file.path(graph_dir2, paste(met_lab, "Elbow_Plot.pdf", sep = "_")), width = 18, height = 12)
   dimcheckMDS(met_data, distance = "bray", k = 10, trymax = 20,
               autotransform = TRUE)
   dev.off()
+  print("NMDS")
   nmds <- metaMDS(met_data, distance = "bray", k = 2, trymax = 500, na.rm = T, autotransform = F)
   
   # envfit scores, write dimensions and vector wts

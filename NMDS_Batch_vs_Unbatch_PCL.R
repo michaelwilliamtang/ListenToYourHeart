@@ -10,7 +10,7 @@ if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "pcl"
 set.seed(10)
-desc <- "Batch Corrected vs Uncorrected, NMDS (Bray-Curtis Distance)"
+desc <- "Batch Corrected vs Uncorrected for Omnigene Samples\nNMDS (Bray-Curtis Distance)"
 # library(icesTAF)
 # library(metaMA)
 # library(lme4)
@@ -46,10 +46,12 @@ nmds_batch_unbatch_comp <- function(pcl_lab, sing_lab, N, coll_type) {
     select(participant_id, batched)
   
   # get nmds
+  print("Elbow")
   pdf(file.path(graph_dir2, paste(pcl_lab, "Elbow_Plot.pdf", sep = "_")), width = 18, height = 12)
   dimcheckMDS(pcl_data, distance = "bray", k = 10, trymax = 20,
               autotransform = TRUE)
   dev.off()
+  print("NMDS")
   nmds <- metaMDS(pcl_data, distance = "bray", k = 2, trymax = 500, na.rm = T, autotransform = F)
   
   # envfit scores, write dimensions and vector wts
@@ -75,6 +77,7 @@ nmds_batch_unbatch_comp(pcl_lab = "Pathways", sing_lab = "Pathway", N = 40, coll
 ### now, same but with regular
 graph_dir <- "Graphs/PCL/Regular_Batched_vs_Unbatched_Scaled"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
+desc <- "Batch Corrected vs Uncorrected for Regular Samples\nNMDS (Bray-Curtis Distance)"
 
 ### comparing for pcl
 nmds_batch_unbatch_comp(pcl_lab = "Pathways", sing_lab = "Pathway", N = 40, coll_type = "regular")

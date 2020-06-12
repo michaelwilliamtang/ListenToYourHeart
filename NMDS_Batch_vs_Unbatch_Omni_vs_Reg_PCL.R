@@ -46,10 +46,12 @@ nmds_batch_unbatch_omni_reg_comp <- function(pcl_lab, sing_lab, N) {
     select(participant_id, collection_type, batched)
   
   # get nmds
+  print("Elbow")
   pdf(file.path(graph_dir2, paste(pcl_lab, "Elbow_Plot.pdf", sep = "_")), width = 18, height = 12)
   dimcheckMDS(pcl_data, distance = "bray", k = 10, trymax = 20,
               autotransform = TRUE)
   dev.off()
+  print("NMDS")
   nmds <- metaMDS(pcl_data, distance = "bray", k = 2, trymax = 500, na.rm = T, autotransform = F)
   
   # envfit scores, write dimensions and vector wts
