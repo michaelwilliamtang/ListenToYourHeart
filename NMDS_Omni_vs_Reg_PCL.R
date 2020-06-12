@@ -25,7 +25,8 @@ nmds_omni_reg_comp <- function(pcl_lab, sing_lab, N, is_batch) {
   
   # get top pathways
   pcl_pathway_df <- pcl_df %>% 
-    filter(omni_comparison == "comparison")
+    filter(omni_comparison == "comparison" &
+             batch == is_batch)
   pcl_pathway_df$batched <- "unbatched"
   pcl_pathway_df$batched[which(pcl_pathway_df$batch)] <- "batched"
   phy <- pcl_pathway_df %>%
