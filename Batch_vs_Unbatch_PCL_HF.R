@@ -15,6 +15,11 @@ batch_vs_unbatch_comp_hf <- function(pcl_lab, sing_lab, N, comp_N, hf_tok) {
   graph_dir2 <- file.path(graph_dir, paste("Top", N, pcl_lab, sep = "_"))
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
   
+  desc1 <- paste("Batch Corrected vs Uncorrected, Heart Failure Samples\nTop", comp_N, pcl_lab,
+                 "By Correction Difference", sep = " ")
+  desc2 <- paste("Batch Corrected vs Uncorrected, Heart Failure Samples\nTop", N, pcl_lab, 
+                 "By Relative Abundance", sep = " ")
+  
   # setup hf check
   is_hf <- pcl_metadata$hf
   names(is_hf) <- pcl_metadata$study_id
@@ -40,11 +45,13 @@ batch_vs_unbatch_comp_hf <- function(pcl_lab, sing_lab, N, comp_N, hf_tok) {
   diff_N_phy <- comp_phyla$pathway[1:comp_N]
   comp_phyla <- comp_phyla %>% filter(pathway %in% diff_N_phy)
   pdf(file.path(graph_dir2, paste(pcl_lab, "By_Collection_Diff.pdf", sep = "_")), width = 18, height = 12)
-  print(comp_phyla %>% ggplot(aes(x = reorder(pathway, -collection_diff), y = collection_diff)) +
+  gg <- comp_phyla %>% ggplot(aes(x = reorder(pathway, -collection_diff), y = collection_diff)) +
           geom_bar(position = "stack", stat = "identity") +
           xlab(sing_lab) +
           ylab("Relative Abundance Diff (batched - unbatched)") +
-          theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)))
+          theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)) +
+          labs(title = desc1)
+  plot(gg)
   dev.off()
   
   # plot top phyla
@@ -55,27 +62,31 @@ batch_vs_unbatch_comp_hf <- function(pcl_lab, sing_lab, N, comp_N, hf_tok) {
     summarize(mean_val = mean(val)) %>%
     arrange(mean_val)
   # View(pcl_pathway_df)
-  pdf(file.path(graph_dir2, paste("Top", N, pcl_lab, "Stack.pdf", sep = "_")), width = 18, height = 12)
-  print(pcl_pathway_df2 %>% ggplot(aes(x = study_id, y = mean_val, fill = pathway)) +
+  pdf(file.path(graph_dir2, paste("Top", N, pcl_lab, "Stack.pdf", sep = "_")), width = 36, height = 24)
+  gg <- pcl_pathway_df2 %>% ggplot(aes(x = study_id, y = mean_val, fill = pathway)) +
           geom_bar(position = "stack", stat = "identity") +
           xlab("Sample") +
           ylab("Relative Abundance") +
           theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)) +
-          guides(fill = guide_legend(title = sing_lab)))
+          guides(fill = guide_legend(title = sing_lab)) +
+          labs(title = desc2)
+  plot(gg)
   dev.off()
-  pcl_pathway_df2 <- pcl_pathway_df %>%
-    filter(pathway %in% top_N_phy) %>%
-    group_by(batched, pathway) %>%
-    summarize(mean_val = mean(val)) %>%
-    arrange(mean_val)
-  pdf(file.path(graph_dir2, paste(pcl_lab, "Aggregated.pdf", sep = "_")), width = 18, height = 12)
-  print(pcl_pathway_df2 %>% ggplot(aes(x = batched, y = mean_val, fill = pathway)) +
-          geom_bar(position = "stack", stat = "identity") +
-          xlab("Collection Type") +
-          ylab("Relative Abundance") +
-          theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)) +
-          guides(fill = guide_legend(title = sing_lab)))
-  dev.off()
+  # pcl_pathway_df2 <- pcl_pathway_df %>%
+  #   filter(pathway %in% top_N_phy) %>%
+  #   group_by(batched, pathway) %>%
+  #   summarize(mean_val = mean(val)) %>%
+  #   arrange(mean_val)
+  # pdf(file.path(graph_dir2, paste(pcl_lab, "Aggregated.pdf", sep = "_")), width = 18, height = 12)
+  # gg <- pcl_pathway_df2 %>% ggplot(aes(x = batched, y = mean_val, fill = pathway)) +
+  #         geom_bar(position = "stack", stat = "identity") +
+  #         xlab("Collection Type") +
+  #         ylab("Relative Abundance") +
+  #         theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)) +
+  #         guides(fill = guide_legend(title = sing_lab)) +
+  #         labs(title = desc2)
+  # plot(gg)
+  # dev.off()
 }
 
 ### comparing for pcl, pathways

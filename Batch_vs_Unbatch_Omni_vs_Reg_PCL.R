@@ -15,6 +15,11 @@ batch_vs_unbatch_comp <- function(pcl_lab, sing_lab, N, comp_N) {
   graph_dir2 <- file.path(graph_dir, paste("Top", N, pcl_lab, sep = "_"))
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
   
+  # desc1 <- paste("Omnigene vs Regular and Batch Corrected vs Uncorrected\nTop",
+  #   comp_N, pcl_lab, "By Collection Difference", sep = " ")
+  desc2 <- paste("Omnigene vs Regular and Batch Corrected vs Uncorrected\nTop",
+                 N, pcl_lab, "By Relative Abundance", sep = " ")
+  
   pcl_pathway_df <- pcl_df %>% 
     filter(omni_comparison == "comparison")
   pcl_pathway_df$batched <- "unbatched"
@@ -34,14 +39,18 @@ batch_vs_unbatch_comp <- function(pcl_lab, sing_lab, N, comp_N) {
     summarize(mean_val = mean(val)) %>%
     arrange(mean_val)
   # View(pcl_pathway_df)
-  pdf(file.path(graph_dir2, paste("Top", N, pcl_lab, "Stack.pdf", sep = "_")), width = 36, height = 24)
-  print(pcl_pathway_df2 %>% ggplot(aes(x = study_id, y = mean_val, fill = pathway)) +
+  fp <- file.path(graph_dir2, paste("Top", N, pcl_lab, "Stack.pdf", sep = "_"))
+  pdf(fp, width = 36, height = 24)
+  gg <- pcl_pathway_df2 %>% ggplot(aes(x = study_id, y = mean_val, fill = pathway)) +
           geom_bar(position = "stack", stat = "identity") +
           xlab("Sample") +
           ylab("Relative Abundance") +
           theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)) +
-          guides(fill = guide_legend(title = sing_lab)))
+          guides(fill = guide_legend(title = sing_lab)) +
+          labs(title = desc2)
+  plot(gg)
   dev.off()
+  # ggsave(fp, plot = last_plot())
   # pcl_pathway_df2 <- pcl_pathway_df %>%
   #   filter(pathway %in% top_N_phy) %>%
   #   group_by(batched, pathway) %>%

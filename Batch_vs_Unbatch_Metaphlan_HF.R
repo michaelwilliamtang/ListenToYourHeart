@@ -15,6 +15,11 @@ batch_unbatch_comp_hf <- function(met_lev, met_reg, met_lab, sing_lab, N, comp_N
   graph_dir2 <- file.path(graph_dir, paste("Top", N, met_lab, sep = "_"))
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
   
+  desc1 <- paste("Batch Corrected vs Uncorrected, Heart Failure Samples\nTop", comp_N, met_lab,
+                 "By Correction Difference", sep = " ")
+  desc2 <- paste("Batch Corrected vs Uncorrected, Heart Failure Samples\nTop", N, met_lab, 
+                 "By Relative Abundance", sep = " ")
+  
   # setup hf check
   is_hf <- met_metadata$hf
   names(is_hf) <- met_metadata$study_id
@@ -42,11 +47,13 @@ batch_unbatch_comp_hf <- function(met_lev, met_reg, met_lab, sing_lab, N, comp_N
   diff_N_phy <- comp_phyla$taxa[1:comp_N]
   comp_phyla <- comp_phyla %>% filter(taxa %in% diff_N_phy)
   pdf(file.path(graph_dir2, paste(met_lab, "By_Batch_Diff.pdf", sep = "_")), width = 18, height = 12)
-  print(comp_phyla %>% ggplot(aes(x = reorder(taxa, -batch_diff), y = batch_diff)) +
+  gg <- comp_phyla %>% ggplot(aes(x = reorder(taxa, -batch_diff), y = batch_diff)) +
           geom_bar(position = "stack", stat = "identity") +
           xlab(sing_lab) +
           ylab("Relative Abundance Diff (batched - unbatched)") +
-          theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)))
+          theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)) +
+          labs(title = desc1)
+  plot(gg)
   dev.off()
   
   # plot top phyla
@@ -58,12 +65,14 @@ batch_unbatch_comp_hf <- function(met_lev, met_reg, met_lab, sing_lab, N, comp_N
     arrange(mean_val)
   # View(met_phyla_df)
   pdf(file.path(graph_dir2, paste("Top", N, met_lab, "Stack.pdf", sep = "_")), width = 36, height = 24)
-  print(met_phyla_df2 %>% ggplot(aes(x = study_id, y = mean_val, fill = taxa)) +
+  gg <- met_phyla_df2 %>% ggplot(aes(x = study_id, y = mean_val, fill = taxa)) +
           geom_bar(position = "stack", stat = "identity") +
           xlab("Sample") +
           ylab("Relative Abundance") +
           theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)) +
-          guides(fill = guide_legend(title = sing_lab)))
+          guides(fill = guide_legend(title = sing_lab)) +
+          labs(title = desc2)
+  plot(gg)
   dev.off()
   # met_phyla_df2 <- met_phyla_df %>%
   #   filter(taxa %in% top_N_phy) %>%

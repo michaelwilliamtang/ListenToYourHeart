@@ -15,6 +15,9 @@ omni_reg_comp <- function(pcl_lab, sing_lab, N, comp_N, is_batch) {
   graph_dir2 <- file.path(graph_dir, paste("Top", N, pcl_lab, sep = "_"))
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
   
+  desc1 <- paste("Omnigene vs Regular, Top", comp_N, pcl_lab, "By Collection Difference", sep = " ")
+  desc2 <- paste("Omnigene vs Regular, Top", N, pcl_lab, "By Relative Abundance", sep = " ")
+  
   pcl_pathway_df <- pcl_df %>% 
     filter(omni_comparison == "comparison" &
            batch == is_batch)
@@ -34,13 +37,17 @@ omni_reg_comp <- function(pcl_lab, sing_lab, N, comp_N, is_batch) {
     arrange(desc(collection_diff_abs))
   diff_N_phy <- comp_phyla$pathway[1:comp_N]
   comp_phyla <- comp_phyla %>% filter(pathway %in% diff_N_phy)
-  pdf(file.path(graph_dir2, paste(pcl_lab, "By_Collection_Diff.pdf", sep = "_")), width = 18, height = 12)
-  print(comp_phyla %>% ggplot(aes(x = reorder(pathway, -collection_diff), y = collection_diff)) +
+  fp <- file.path(graph_dir2, paste(pcl_lab, "By_Collection_Diff.pdf", sep = "_"))
+  pdf(fp,  width = 18, height = 12)
+  gg <- comp_phyla %>% ggplot(aes(x = reorder(pathway, -collection_diff), y = collection_diff)) +
           geom_bar(position = "stack", stat = "identity") +
           xlab(sing_lab) +
           ylab("Relative Abundance Diff (omni - reg)") +
-          theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)))
+          theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1))
+         labs(title = desc1)
+  plot(gg)
   dev.off()
+  # ggsave(fp, plot = last_plot())
   
   # plot top phyla
   pcl_pathway_df2 <- pcl_pathway_df %>%
@@ -50,27 +57,35 @@ omni_reg_comp <- function(pcl_lab, sing_lab, N, comp_N, is_batch) {
     summarize(mean_val = mean(val)) %>%
     arrange(mean_val)
   # View(pcl_pathway_df)
-  pdf(file.path(graph_dir2, paste("Top", N, pcl_lab, "Stack.pdf", sep = "_")), width = 18, height = 12)
-  print(pcl_pathway_df2 %>% ggplot(aes(x = study_id, y = mean_val, fill = pathway)) +
+  fp <- file.path(graph_dir2, paste("Top", N, pcl_lab, "Stack.pdf", sep = "_"))
+  pdf(fp, width = 18, height = 12)
+  gg <- pcl_pathway_df2 %>% ggplot(aes(x = study_id, y = mean_val, fill = pathway)) +
           geom_bar(position = "stack", stat = "identity") +
           xlab("Sample") +
           ylab("Relative Abundance") +
           theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)) +
-          guides(fill = guide_legend(title = sing_lab)))
+          guides(fill = guide_legend(title = sing_lab)) +
+          labs(title = desc2)
+  plot(gg)
   dev.off()
+  # ggsave(fp, plot = last_plot())
   pcl_pathway_df2 <- pcl_pathway_df %>%
     filter(pathway %in% top_N_phy) %>%
     group_by(collection_type, pathway) %>%
     summarize(mean_val = mean(val)) %>%
     arrange(mean_val)
-  pdf(file.path(graph_dir2, paste(pcl_lab, "Aggregated.pdf", sep = "_")), width = 18, height = 12)
-  print(pcl_pathway_df2 %>% ggplot(aes(x = collection_type, y = mean_val, fill = pathway)) +
+  fp <- file.path(graph_dir2, paste(pcl_lab, "Aggregated.pdf", sep = "_"))
+  pdf(fp,  width = 18, height = 12)
+  gg <- pcl_pathway_df2 %>% ggplot(aes(x = collection_type, y = mean_val, fill = pathway)) +
           geom_bar(position = "stack", stat = "identity") +
           xlab("Collection Type") +
           ylab("Relative Abundance") +
           theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)) +
-          guides(fill = guide_legend(title = sing_lab)))
+          guides(fill = guide_legend(title = sing_lab)) +
+          labs(title = paste(desc2, ", Aggregated", sep = ""))
+  plot(gg)
   dev.off()
+  # ggsave(fp, plot = last_plot())
 }
 
 ### comparing for pcl, pathways

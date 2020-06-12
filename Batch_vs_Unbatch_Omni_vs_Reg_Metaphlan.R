@@ -15,6 +15,11 @@ batch_unbatch_omni_reg_comp <- function(met_lev, met_reg, met_lab, sing_lab, N, 
   graph_dir2 <- file.path(graph_dir, paste("Top", N, met_lab, sep = "_"))
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
   
+  # desc1 <- paste("Omnigene vs Regular and Batch Corrected vs Uncorrected\nTop", 
+  #   comp_N, met_lab, "By Collection Difference", sep = " ")
+  desc2 <- paste("Omnigene vs Regular and Batch Corrected vs Uncorrected\nTop", 
+                 N, met_lab, "By Relative Abundance", sep = " ")
+  
   met_phyla_df <- metaphlan_df %>% 
     filter(omni_comparison == "comparison" &
              level == met_lev) %>%
@@ -36,14 +41,18 @@ batch_unbatch_omni_reg_comp <- function(met_lev, met_reg, met_lab, sing_lab, N, 
     summarize(mean_val = mean(val)) %>%
     arrange(mean_val)
   # View(met_phyla_df)
-  pdf(file.path(graph_dir2, paste("Top", N, met_lab, "Stack.pdf", sep = "_")), width = 18, height = 12)
-  print(met_phyla_df2 %>% ggplot(aes(x = study_id, y = mean_val, fill = taxa)) +
+  fp <- file.path(graph_dir2, paste("Top", N, met_lab, "Stack.pdf", sep = "_"))
+  pdf(fp, width = 18, height = 12)
+  gg <- met_phyla_df2 %>% ggplot(aes(x = study_id, y = mean_val, fill = taxa)) +
           geom_bar(position = "stack", stat = "identity") +
           xlab("Sample") +
           ylab("Relative Abundance") +
           theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)) +
-          guides(fill = guide_legend(title = sing_lab)))
+          guides(fill = guide_legend(title = sing_lab)) +
+          labs(title = desc2)
+  plot(gg)
   dev.off()
+  # ggsave(fp, plot = last_plot(), width = 18, height = 12)
   # met_phyla_df2 <- met_phyla_df %>%
   #   filter(taxa %in% top_N_phy) %>%
   #   group_by(batched, taxa) %>%
