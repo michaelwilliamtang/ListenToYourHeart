@@ -23,7 +23,7 @@ nmds_omni_reg_comp <- function(pcl_lab, sing_lab, N, is_batch) {
   graph_dir2 <- file.path(graph_dir, paste("Top", N, pcl_lab, sep = "_"))
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
   
-  # get top pathway
+  # get top pathways
   pcl_pathway_df <- pcl_df %>% 
     filter(omni_comparison == "comparison")
   pcl_pathway_df$batched <- "unbatched"
@@ -34,21 +34,15 @@ nmds_omni_reg_comp <- function(pcl_lab, sing_lab, N, is_batch) {
     arrange(desc(mean_val))
   top_N_phy <- phy$pathway[1:N]
   
-  # subset/setup data and metadata
-  full_names <- colnames(unbatched_spread_df)
-  rep_names <- full_names
-  rep_names[5:length(rep_names)] = 5:length(rep_names)
-  colnames(unbatched_spread_df) <- rep_names
-  unbatched_spread_df <- unbatched_spread_df %>% 
-    filter(omni_comparison == "comparison") %>%
-    mutate(study_id = paste(study_id, collection_type, sep = "_"))
-  pcl_data <- unbatched_spread_df #%>%
-  #   select(-c(study_id, collection_type, omni_comparison, participant_id))
-  pcl_metadata <- unbatched_spread_df %>% select(participant_id, collection_type)
-  
-  # subset to top pathway only
-  pcl_data <- pcl_data %>% select(which(full_names %in% top_N_phy)) %>%
+  pcl_pathway_df <- pcl_pathway_df %>%
+    filter(pathway %in% top_N_phy) %>%
+    mutate(study_id = paste(study_id, collection_type, sep = "_")) %>%
+    spread(pathway, val)
+  pcl_data <- pcl_pathway_df %>%
+    select(top_N_phy) %>%
     as.matrix()
+  pcl_metadata <- pcl_pathway_df %>%
+    select(participant_id, collection_type)
   
   # get nmds
   pdf(file.path(graph_dir2, paste(pcl_lab, "Elbow_Plot.pdf", sep = "_")), width = 18, height = 12)

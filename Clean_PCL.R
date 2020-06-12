@@ -28,8 +28,8 @@ pathways <- 184:ncol(pcl_df)
 pcl_metadata <- pcl_df %>% select(1:183)
 pcl_pathway_df <- pcl_df %>%
   select(study_id, collection_type, omni_comparison, pathways)
-unbatched_spread_df <- pcl_pathway_df[4:ncol(pcl_pathway_df)]
-unbatched_meta_df <- pcl_pathway_df[1:3]
+# unbatched_spread_df <- pcl_pathway_df[4:ncol(pcl_pathway_df)]
+# unbatched_meta_df <- pcl_pathway_df[1:3]
 # pcl_pathway_df$participant_id[16] <- paste(pcl_pathway_df$participant_id[16], "b", sep = "_") # anomaly participant (dup)
 # pcl_pathway_df$participant_id[18] <- paste(pcl_pathway_df$participant_id[18], "b", sep = "_")
 pcl_pathway_df <- pcl_pathway_df %>%
@@ -39,15 +39,15 @@ pcl_pathway_df$val <- as.numeric(pcl_pathway_df$val)
 pcl_pathway_df$val <- log2(pcl_pathway_df$val + 1) # allows for 0's
 pcl_pathway_df$omni_comparison[which(pcl_pathway_df$omni_comparison == "")] <- "no"
 pcl_metadata$omni_comparison[which(pcl_metadata$omni_comparison == "")] <- "no"
-unbatched_meta_df$omni_comparison[which(unbatched_meta_df$omni_comparison == "")] <- "no"
+# unbatched_meta_df$omni_comparison[which(unbatched_meta_df$omni_comparison == "")] <- "no"
 pcl_pathway_df$pathway <- as.numeric(pcl_pathway_df$pathway)
 pcl_pathway_df <- pcl_pathway_df %>%
   mutate(pathway = full_names[pathway])
 # clean spread df too
-unbatched_spread_df <- unbatched_spread_df %>% 
-  sapply(as.numeric)
-unbatched_spread_df <- log2(unbatched_spread_df + 1)
-colnames(unbatched_spread_df) <- full_names[as.numeric(colnames(unbatched_spread_df))]
+# unbatched_spread_df <- unbatched_spread_df %>% 
+#   sapply(as.numeric)
+# unbatched_spread_df <- log2(unbatched_spread_df + 1)
+# colnames(unbatched_spread_df) <- full_names[as.numeric(colnames(unbatched_spread_df))]
 
 # get batched data
 pcl_df <- read.table(file.path(data_dir, "hf-abundance-final-combat.pcl"), sep = "\t", stringsAsFactors = FALSE, row.names = 1)
@@ -58,8 +58,8 @@ pcl_df <- pcl_df %>%
 pathways <- 184:ncol(pcl_df)
 pcl_pathway_df2 <- pcl_df %>%
   select(study_id, participant_id, collection_type, omni_comparison, pathways)
-unbatched_part_ids <- pcl_pathway_df2$participant_id # since unbatched data did not have any, must borrow
-names(unbatched_part_ids) <- pcl_pathway_df2$study_id
+# unbatched_part_ids <- pcl_pathway_df2$participant_id # since unbatched data did not have any, must borrow
+# names(unbatched_part_ids) <- pcl_pathway_df2$study_id
 # pcl_pathway_df2$participant_id[16] <- paste(pcl_pathway_df2$participant_id[16], "b", sep = "_") # anomaly participant (dup)
 # pcl_pathway_df2$participant_id[18] <- paste(pcl_pathway_df2$participant_id[18], "b", sep = "_")
 pcl_pathway_df2 <- pcl_pathway_df2 %>%
@@ -100,20 +100,20 @@ pcl_pathway_df2$val <- pcl_pathway_df2$batch_val
 pcl_pathway_df <- rbind(pcl_pathway_df, pcl_pathway_df2 %>% select(-batch_val))
 
 # add part ids to unbatched
-unbatched_meta_df <- unbatched_meta_df %>%
-  mutate(participant_id = unbatched_part_ids[study_id])
+# unbatched_meta_df <- unbatched_meta_df %>%
+#   mutate(participant_id = unbatched_part_ids[study_id])
 
 # save
-tmp <- unbatched_spread_df
-unbatched_spread_df <- cbind(unbatched_meta_df, tmp)
-save(pcl_pathway_df, pcl_metadata, unbatched_spread_df, file = file.path(save_dir, "Tidy_Log_PCL.RData"))
+# tmp <- unbatched_spread_df
+# unbatched_spread_df <- cbind(unbatched_meta_df, tmp)
+save(pcl_pathway_df, pcl_metadata, file = file.path(save_dir, "Tidy_Log_PCL.RData"))
 
 pcl_pathway_df$val <- 2 ^ pcl_pathway_df$val - 1
-tmp <- 2 ^ tmp - 1
-unbatched_spread_df <- cbind(unbatched_meta_df, tmp)
-save(pcl_pathway_df, pcl_metadata, unbatched_spread_df, file = file.path(save_dir, "Tidy_PCL.RData"))
+# tmp <- 2 ^ tmp - 1
+# unbatched_spread_df <- cbind(unbatched_meta_df, tmp)
+save(pcl_pathway_df, pcl_metadata, file = file.path(save_dir, "Tidy_PCL.RData"))
 
 pcl_pathway_df$val <- pcl_pathway_df$val / 10
-tmp <- tmp / 10
-unbatched_spread_df <- cbind(unbatched_meta_df, tmp)
-save(pcl_pathway_df, pcl_metadata, unbatched_spread_df, file = file.path(save_dir, "Tidy_Scaled_PCL.RData"))
+# tmp <- tmp / 10
+# unbatched_spread_df <- cbind(unbatched_meta_df, tmp)
+save(pcl_pathway_df, pcl_metadata, file = file.path(save_dir, "Tidy_Scaled_PCL.RData"))

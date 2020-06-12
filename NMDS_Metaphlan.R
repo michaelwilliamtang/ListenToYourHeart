@@ -37,25 +37,16 @@ nmds_omni_reg_comp <- function(met_lev, met_reg, met_lab, sing_lab, N, is_batch)
   top_N_phy <- phy$taxa[1:N]
   
   # subset/setup data and metadata
-  unbatched_spread_df <- unbatched_spread_df %>% 
-    filter(omni_comparison == "comparison") %>%
-    mutate(study_id = paste(study_id, collection_type, sep = "_"))
-  met_data <- unbatched_spread_df %>% 
-    select(-c(study_id, collection_type, omni_comparison, participant_id))
-  met_metadata <- unbatched_spread_df %>% select(participant_id, collection_type)
-  
-  # get readable column names
-  t_levels <- c("kingdom", "phylum", "class", "order", "family", "genus", "species", "strain")
-  level_taxa <- colnames(met_data) %>% str_count("__")
-  level_taxa <- which(t_levels[level_taxa] == met_lev)
-  met_data <- met_data %>% 
-      select(level_taxa)
-  colnames(met_data) <- colnames(met_data) %>% str_replace(met_reg, "")
-  
-  # subset to top taxa only
-  met_data <- met_data %>% select(which(colnames(met_data) %in% top_N_phy)) %>%
+  met_phyla_df <- met_phyla_df %>%
+    filter(taxa %in% top_N_phy) %>%
+    mutate(study_id = paste(study_id, collection_type, sep = "_")) %>%
+    spread(taxa, val)
+  met_data <- met_phyla_df %>%
+    select(top_N_phy) %>%
     as.matrix()
-  
+  met_metadata <- met_phyla_df %>%
+    select(participant_id, collection_type)
+
   # get nmds
   pdf(file.path(graph_dir2, paste(met_lab, "Elbow_Plot.pdf", sep = "_")), width = 18, height = 12)
   dimcheckMDS(met_data, distance = "bray", k = 10, trymax = 20,
