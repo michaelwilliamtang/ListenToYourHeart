@@ -28,6 +28,7 @@ pathways <- 184:ncol(pcl_df)
 pcl_metadata <- pcl_df %>% select(1:183)
 pcl_pathway_df <- pcl_df %>%
   select(study_id, collection_type, omni_comparison, pathways)
+unbatched_spread_df <- pcl_pathway_df[4:ncol(pcl_pathway_df)]
 # pcl_pathway_df$participant_id[16] <- paste(pcl_pathway_df$participant_id[16], "b", sep = "_") # anomaly participant (dup)
 # pcl_pathway_df$participant_id[18] <- paste(pcl_pathway_df$participant_id[18], "b", sep = "_")
 pcl_pathway_df <- pcl_pathway_df %>%
@@ -36,9 +37,15 @@ pcl_pathway_df <- pcl_pathway_df %>%
 pcl_pathway_df$val <- as.numeric(pcl_pathway_df$val)
 pcl_pathway_df$val <- log2(pcl_pathway_df$val + 1) # allows for 0's
 pcl_pathway_df$omni_comparison[which(pcl_pathway_df$omni_comparison == "")] <- "no"
+pcl_metadata$omni_comparison[which(pcl_metadata$omni_comparison == "")] <- "no"
 pcl_pathway_df$pathway <- as.numeric(pcl_pathway_df$pathway)
 pcl_pathway_df <- pcl_pathway_df %>%
   mutate(pathway = full_names[pathway])
+# clean spread df too
+unbatched_spread_df <- unbatched_spread_df %>% 
+  sapply(as.numeric)
+unbatched_spread_df <- log2(unbatched_spread_df + 1)
+colnames(unbatched_spread_df) <- full_names[as.numeric(colnames(unbatched_spread_df))]
 
 # get batched data
 pcl_df <- read.table(file.path(data_dir, "hf-abundance-final-combat.pcl"), sep = "\t", stringsAsFactors = FALSE, row.names = 1)
@@ -88,8 +95,10 @@ pcl_pathway_df2$batch <- T
 pcl_pathway_df2$val <- pcl_pathway_df2$batch_val
 pcl_pathway_df <- rbind(pcl_pathway_df, pcl_pathway_df2 %>% select(-batch_val))
 
-save(pcl_pathway_df, pcl_metadata, file = file.path(save_dir, "Tidy_Log_PCL.RData"))
+save(pcl_pathway_df, pcl_metadata, unbatched_spread_df, file = file.path(save_dir, "Tidy_Log_PCL.RData"))
 pcl_pathway_df$val <- 2 ^ pcl_pathway_df$val - 1
-save(pcl_pathway_df, pcl_metadata, file = file.path(save_dir, "Tidy_PCL.RData"))
+unbatched_spread_df <- 2 ^ unbatched_spread_df - 1
+save(pcl_pathway_df, pcl_metadata, unbatched_spread_df, file = file.path(save_dir, "Tidy_PCL.RData"))
 pcl_pathway_df$val <- pcl_pathway_df$val / 10
-save(pcl_pathway_df, pcl_metadata, file = file.path(save_dir, "Tidy_Scaled_PCL.RData"))
+unbatched_spread_df <- unbatched_spread_df / 10
+save(pcl_pathway_df, pcl_metadata, unbatched_spread_df, file = file.path(save_dir, "Tidy_Scaled_PCL.RData"))

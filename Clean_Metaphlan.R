@@ -21,6 +21,7 @@ taxa <- 183:ncol(metaphlan_df)
 met_metadata <- metaphlan_df %>% select(1:182)
 met_taxa_df <- metaphlan_df %>%
   select(study_id, collection_type, omni_comparison, taxa)
+unbatched_spread_df <- met_taxa_df[4:ncol(met_taxa_df)]
 # met_taxa_df$participant_id[16] <- paste(met_taxa_df$participant_id[16], "b", sep = "_") # anomaly participant (dup)
 # met_taxa_df$participant_id[18] <- paste(met_taxa_df$participant_id[18], "b", sep = "_")
 met_taxa_df <- met_taxa_df %>%
@@ -29,6 +30,14 @@ met_taxa_df$taxa <- str_replace_all(met_taxa_df$taxa, "\\|", "\\.")
 met_taxa_df$val <- as.numeric(met_taxa_df$val)
 met_taxa_df$val <- log2(met_taxa_df$val + 1) # allows for 0's
 met_taxa_df$omni_comparison[which(met_taxa_df$omni_comparison == "")] <- "no"
+met_metadata$omni_comparison[which(met_metadata$omni_comparison == "")] <- "no"
+# clean spread df too
+colnames(unbatched_spread_df) <- colnames(unbatched_spread_df) %>%
+  str_replace_all("\\|", "\\.")
+unbatched_spread_df <- unbatched_spread_df %>% 
+  sapply(as.numeric)
+unbatched_spread_df <- log2(unbatched_spread_df + 1)
+
 
 # get batched data
 # read metaphlan
@@ -80,9 +89,11 @@ met_taxa_df <- rbind(met_taxa_df, met_taxa_df2 %>% select(-batch_val))
 t_levels <- c("kingdom", "phylum", "class", "order", "family", "genus", "species", "strain")
 met_taxa_df$level <- t_levels[str_count(met_taxa_df$taxa, "__")]
 
-save(met_taxa_df, met_metadata, file = file.path(save_dir, "Tidy_Log_Metaphlan.RData"))
+save(met_taxa_df, met_metadata, unbatched_spread_df, file = file.path(save_dir, "Tidy_Log_Metaphlan.RData"))
 met_taxa_df$level <- t_levels[str_count(met_taxa_df$taxa, "__")]
 met_taxa_df$val <- 2 ^ met_taxa_df$val - 1
-save(met_taxa_df, met_metadata, file = file.path(save_dir, "Tidy_Metaphlan.RData"))
+unbatched_spread_df <- 2 ^ unbatched_spread_df - 1
+save(met_taxa_df, met_metadata, unbatched_spread_df, file = file.path(save_dir, "Tidy_Metaphlan.RData"))
 met_taxa_df$val <- met_taxa_df$val / 100
-save(met_taxa_df, met_metadata, file = file.path(save_dir, "Tidy_Scaled_Metaphlan.RData"))
+unbatched_spread_df <- unbatched_spread_df / 100
+save(met_taxa_df, met_metadata, unbatched_spread_df, file = file.path(save_dir, "Tidy_Scaled_Metaphlan.RData"))
