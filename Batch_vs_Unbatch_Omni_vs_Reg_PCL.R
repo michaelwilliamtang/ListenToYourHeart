@@ -34,7 +34,7 @@ batch_vs_unbatch_comp <- function(pcl_lab, sing_lab, N, comp_N) {
     summarize(mean_val = mean(val)) %>%
     arrange(mean_val)
   # View(pcl_pathway_df)
-  pdf(file.path(graph_dir2, paste("Top", N, pcl_lab, "Stack.pdf", sep = "_")), width = 18, height = 12)
+  pdf(file.path(graph_dir2, paste("Top", N, pcl_lab, "Stack.pdf", sep = "_")), width = 36, height = 24)
   print(pcl_pathway_df2 %>% ggplot(aes(x = study_id, y = mean_val, fill = pathway)) +
           geom_bar(position = "stack", stat = "identity") +
           xlab("Sample") +
