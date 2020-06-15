@@ -95,3 +95,13 @@ omni_reg_comp(met_lev = "phylum", met_reg = ".*p__", met_lab = "Phyla", sing_lab
 
 ### comparing for metaphlan, genera
 omni_reg_comp(met_lev = "genus", met_reg = ".*g__", met_lab = "Genera", sing_lab = "Genus", N = 20, comp_N = 20, is_batch = F)
+
+### same, but batched
+graph_dir <- "Graphs/Metaphlan/Batched_Omni_vs_Regular_Scaled"
+if (!dir.exists(graph_dir)) dir.create(graph_dir)
+
+### comparing for metaphlan, phyla
+omni_reg_comp(met_lev = "phylum", met_reg = ".*p__", met_lab = "Phyla", sing_lab = "Phylum", N = 5, comp_N = 20, is_batch = T)
+
+### comparing for metaphlan, genera
+omni_reg_comp(met_lev = "genus", met_reg = ".*g__", met_lab = "Genera", sing_lab = "Genus", N = 20, comp_N = 20, is_batch = T)

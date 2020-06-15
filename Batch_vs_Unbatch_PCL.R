@@ -3,21 +3,24 @@
 
 library(tidyverse)
 data_dir <- "Data/Tidy"
-graph_dir <- "Graphs/PCL/Omni_Batched_vs_Unbatched_Scaled"
+graph_dir <- "Graphs/PCL/Omni_Batched_vs_Unbatched"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "pcl"
 
-load(file.path(data_dir, paste("Tidy_Scaled_", ds1, ".RData", sep = "")))
+load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
 pcl_df <- pcl_pathway_df
 
 batch_vs_unbatch_comp <- function(pcl_lab, sing_lab, N, comp_N, coll_type) {
   graph_dir2 <- file.path(graph_dir, paste("Top", N, pcl_lab, sep = "_"))
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
   
+  desc1 <- paste("Batched Corrected vs Uncorrected, Top", comp_N, pcl_lab, "By Correction Difference", sep = " ")
+  desc2 <- paste("Batched Corrected vs Uncorrected, Top", N, pcl_lab, "By Relative Abundance", sep = " ")
+  
   pcl_pathway_df <- pcl_df %>% 
     filter(omni_comparison == "comparison" &
-           collection_type == coll_type)
+           collection_type %in% coll_type)
   pcl_pathway_df$batched <- "unbatched"
   pcl_pathway_df$batched[which(pcl_pathway_df$batch)] <- "batched"
   phy <- pcl_pathway_df %>%
@@ -37,11 +40,13 @@ batch_vs_unbatch_comp <- function(pcl_lab, sing_lab, N, comp_N, coll_type) {
   diff_N_phy <- comp_phyla$pathway[1:comp_N]
   comp_phyla <- comp_phyla %>% filter(pathway %in% diff_N_phy)
   pdf(file.path(graph_dir2, paste(pcl_lab, "By_Collection_Diff.pdf", sep = "_")), width = 18, height = 12)
-  print(comp_phyla %>% ggplot(aes(x = reorder(pathway, -collection_diff), y = collection_diff)) +
+  gg <- comp_phyla %>% ggplot(aes(x = reorder(pathway, -collection_diff), y = collection_diff)) +
           geom_bar(position = "stack", stat = "identity") +
           xlab(sing_lab) +
           ylab("Relative Abundance Diff (batched - unbatched)") +
-          theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)))
+          theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)) +
+          labs(title = desc1)
+  plot(gg)
   dev.off()
   
   # plot top phyla
@@ -52,13 +57,15 @@ batch_vs_unbatch_comp <- function(pcl_lab, sing_lab, N, comp_N, coll_type) {
     summarize(mean_val = mean(val)) %>%
     arrange(mean_val)
   # View(pcl_pathway_df)
-  pdf(file.path(graph_dir2, paste("Top", N, pcl_lab, "Stack.pdf", sep = "_")), width = 18, height = 12)
-  print(pcl_pathway_df2 %>% ggplot(aes(x = study_id, y = mean_val, fill = pathway)) +
+  pdf(file.path(graph_dir2, paste("Top", N, pcl_lab, "Stack.pdf", sep = "_")), width = 24, height = 16)
+  gg <- pcl_pathway_df2 %>% ggplot(aes(x = study_id, y = mean_val, fill = pathway)) +
           geom_bar(position = "stack", stat = "identity") +
           xlab("Sample") +
           ylab("Relative Abundance") +
           theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)) +
-          guides(fill = guide_legend(title = sing_lab)))
+          guides(fill = guide_legend(title = sing_lab)) +
+          labs(title = desc2)
+  plot(gg)
   dev.off()
   pcl_pathway_df2 <- pcl_pathway_df %>%
     filter(pathway %in% top_N_phy) %>%
@@ -66,12 +73,14 @@ batch_vs_unbatch_comp <- function(pcl_lab, sing_lab, N, comp_N, coll_type) {
     summarize(mean_val = mean(val)) %>%
     arrange(mean_val)
   pdf(file.path(graph_dir2, paste(pcl_lab, "Aggregated.pdf", sep = "_")), width = 18, height = 12)
-  print(pcl_pathway_df2 %>% ggplot(aes(x = batched, y = mean_val, fill = pathway)) +
+  gg <- pcl_pathway_df2 %>% ggplot(aes(x = batched, y = mean_val, fill = pathway)) +
           geom_bar(position = "stack", stat = "identity") +
           xlab("Collection Type") +
           ylab("Relative Abundance") +
           theme(axis.text.x = element_text(size = 10, angle = 90, hjust = 1)) +
-          guides(fill = guide_legend(title = sing_lab)))
+          guides(fill = guide_legend(title = sing_lab)) +
+          labs(title = paste(desc2, ", Aggregated", sep = ""))
+  plot(gg)
   dev.off()
 }
 
@@ -79,8 +88,15 @@ batch_vs_unbatch_comp <- function(pcl_lab, sing_lab, N, comp_N, coll_type) {
 batch_vs_unbatch_comp(pcl_lab = "Pathways", sing_lab = "Pathway", N = 40, comp_N = 20, coll_type = "omni")
 
 ### now, same but with regular
-graph_dir <- "Graphs/PCL/Regular_Batched_vs_Unbatched_Scaled"
+graph_dir <- "Graphs/PCL/Regular_Batched_vs_Unbatched"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 
 ### comparing for pcl, pathways
 batch_vs_unbatch_comp(pcl_lab = "Pathways", sing_lab = "Pathway", N = 40, comp_N = 20, coll_type = "regular")
+
+### now, same but with both
+graph_dir <- "Graphs/PCL/Comparison_Batched_vs_Unbatched"
+if (!dir.exists(graph_dir)) dir.create(graph_dir)
+
+### comparing for pcl, pathways
+batch_vs_unbatch_comp(pcl_lab = "Pathways", sing_lab = "Pathway", N = 40, comp_N = 20, coll_type = c("omni", "regular"))

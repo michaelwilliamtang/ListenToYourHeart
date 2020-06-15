@@ -29,7 +29,7 @@ nmds_batch_unbatch_comp <- function(met_lev, met_reg, met_lab, sing_lab, N, coll
   met_phyla_df <- metaphlan_df %>% 
     filter(omni_comparison == "comparison" &
              level == met_lev &
-             collection_type == coll_type) %>%
+             collection_type %in% coll_type) %>%
     mutate(taxa = str_replace(taxa, met_reg, ""))
   met_phyla_df$batched <- "unbatched"
   met_phyla_df$batched[which(met_phyla_df$batch)] <- "batched"
@@ -92,3 +92,14 @@ nmds_batch_unbatch_comp(met_lev = "phylum", met_reg = ".*p__", met_lab = "Phyla"
 
 ### comparing for metaphlan, genera
 nmds_batch_unbatch_comp(met_lev = "genus", met_reg = ".*g__", met_lab = "Genera", sing_lab = "Genus", N = 20, coll_type = "regular")
+
+### now, same but with both
+graph_dir <- "Graphs/Metaphlan/Comparison_Batched_vs_Unbatched_Scaled"
+if (!dir.exists(graph_dir)) dir.create(graph_dir)
+desc <- "Batch Corrected vs Uncorrected for Comparison Samples\nNMDS (Bray-Curtis Distance)"
+
+### comparing for metaphlan, phyla
+nmds_batch_unbatch_comp(met_lev = "phylum", met_reg = ".*p__", met_lab = "Phyla", sing_lab = "Phylum", N = 5, coll_type = c("regular", "omni"))
+
+### comparing for metaphlan, genera
+nmds_batch_unbatch_comp(met_lev = "genus", met_reg = ".*g__", met_lab = "Genera", sing_lab = "Genus", N = 20, coll_type = c("regular", "omni"))
