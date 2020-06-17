@@ -11,7 +11,8 @@ check_distribution <- function(logged = F, is_batch = F, coll_type = "omni") {
   graph_dir2 <- "Graphs/PCL/Check_Distribution"
   if (logged) graph_dir2 <- paste(graph_dir2, "Log", sep = "_")
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
-  load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
+  if (logged) load(file.path(data_dir, paste("Tidy_Log_", ds1, ".RData", sep = "")))
+  else load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
   pcl_df <- pcl_pathway_df
   
   if (!is.na(is_batch)) pcl_df <- pcl_df %>%
@@ -46,4 +47,5 @@ check_distribution <- function(logged = F, is_batch = F, coll_type = "omni") {
   dev.off()
 }
 
-check_distribution(logged = F, is_batch = F, coll_type = "omni")
+check_distribution(logged = F, is_batch = F, coll_type = NA)
+check_distribution(logged = T, is_batch = F, coll_type = NA)

@@ -113,7 +113,7 @@ pcl_pathway_df$val <- 2 ^ pcl_pathway_df$val - 1
 # unbatched_spread_df <- cbind(unbatched_meta_df, tmp)
 save(pcl_pathway_df, pcl_metadata, file = file.path(save_dir, "Tidy_PCL.RData"))
 
-pcl_pathway_df$val <- pcl_pathway_df$val / 10
-# tmp <- tmp / 10
+pcl_pathway_df$val <- pcl_pathway_df$val / 100
+# tmp <- tmp / 100
 # unbatched_spread_df <- cbind(unbatched_meta_df, tmp)
 save(pcl_pathway_df, pcl_metadata, file = file.path(save_dir, "Tidy_Scaled_PCL.RData"))
