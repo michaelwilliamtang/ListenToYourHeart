@@ -8,7 +8,7 @@ save_dir <- "Data/Tidy"
 summarize <- dplyr::summarize
 
 # get unbatched data (no participant ids, so we must match those from batched data)
-pcl_df <- read.table(file.path(data_dir, "pathabundance_april_30.csv"), sep = ",", stringsAsFactors = FALSE)
+pcl_df <- read.table(file.path(data_dir, "pathabundance_april_30.csv"), sep = ",", quote = "\"", stringsAsFactors = FALSE)
 pcl_df$V1[50] <- paste(pcl_df$V1[50], "b", sep = "_") # dup row
 full_names <- pcl_df$V1
 full_names[184:length(full_names)] <- full_names[184:length(full_names)] %>% 
@@ -25,7 +25,7 @@ pcl_df <- pcl_df %>%
 # View(pcl_df[,1:100])
 pcl_df$study_id <- str_replace_all(pcl_df$study_id, " ", "")
 pathways <- 184:ncol(pcl_df)
-pcl_metadata <- pcl_df %>% select(1:183)
+# pcl_metadata <- pcl_df %>% select(1:183)
 pcl_pathway_df <- pcl_df %>%
   select(study_id, collection_type, omni_comparison, pathways)
 # unbatched_spread_df <- pcl_pathway_df[4:ncol(pcl_pathway_df)]
@@ -38,7 +38,6 @@ pcl_pathway_df <- pcl_pathway_df %>%
 pcl_pathway_df$val <- as.numeric(pcl_pathway_df$val)
 pcl_pathway_df$val <- log2(pcl_pathway_df$val + 1) # allows for 0's
 pcl_pathway_df$omni_comparison[which(pcl_pathway_df$omni_comparison == "")] <- "no"
-pcl_metadata$omni_comparison[which(pcl_metadata$omni_comparison == "")] <- "no"
 # unbatched_meta_df$omni_comparison[which(unbatched_meta_df$omni_comparison == "")] <- "no"
 pcl_pathway_df$pathway <- as.numeric(pcl_pathway_df$pathway)
 pcl_pathway_df <- pcl_pathway_df %>%
@@ -50,12 +49,15 @@ pcl_pathway_df <- pcl_pathway_df %>%
 # colnames(unbatched_spread_df) <- full_names[as.numeric(colnames(unbatched_spread_df))]
 
 # get batched data
-pcl_df <- read.table(file.path(data_dir, "hf-abundance-final-combat.pcl"), sep = "\t", stringsAsFactors = FALSE, row.names = 1)
+pcl_df <- read.table(file.path(data_dir, "hf-abundance-final-combat.pcl"), sep = "\t", stringsAsFactors = FALSE,
+                     quote = "\"", row.names = 1)
 pcl_df <- pcl_df %>%
   as.matrix() %>% t() %>%
   as_tibble()
 # View(pcl_df[,1:100])
 pathways <- 184:ncol(pcl_df)
+pcl_metadata <- pcl_df %>% select(1:183)
+pcl_metadata$omni_comparison[which(pcl_metadata$omni_comparison == "")] <- "no"
 pcl_pathway_df2 <- pcl_df %>%
   select(study_id, participant_id, collection_type, omni_comparison, pathways)
 # unbatched_part_ids <- pcl_pathway_df2$participant_id # since unbatched data did not have any, must borrow

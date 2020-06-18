@@ -18,7 +18,7 @@ metaphlan_df <- metaphlan_df %>%
 # View(metaphlan_df[,1:100])
 metaphlan_df$study_id <- str_replace_all(metaphlan_df$study_id, " ", "")
 taxa <- 183:ncol(metaphlan_df)
-met_metadata <- metaphlan_df %>% select(1:182)
+# met_metadata <- metaphlan_df %>% select(1:182)
 met_taxa_df <- metaphlan_df %>%
   select(study_id, collection_type, omni_comparison, taxa)
 # unbatched_spread_df <- met_taxa_df[4:ncol(met_taxa_df)]
@@ -31,7 +31,6 @@ met_taxa_df$taxa <- str_replace_all(met_taxa_df$taxa, "\\|", "\\.")
 met_taxa_df$val <- as.numeric(met_taxa_df$val)
 met_taxa_df$val <- log2(met_taxa_df$val + 1) # allows for 0's
 met_taxa_df$omni_comparison[which(met_taxa_df$omni_comparison == "")] <- "no"
-met_metadata$omni_comparison[which(met_metadata$omni_comparison == "")] <- "no"
 # unbatched_meta_df$omni_comparison[which(unbatched_meta_df$omni_comparison == "")] <- "no"
 # clean spread df too
 # colnames(unbatched_spread_df) <- colnames(unbatched_spread_df) %>%
@@ -49,6 +48,8 @@ metaphlan_df <- metaphlan_df %>%
   as_tibble()
 # View(metaphlan_df[,1:100])
 taxa <- 183:ncol(metaphlan_df)
+met_metadata <- metaphlan_df %>% select(1:182)
+met_metadata$omni_comparison[which(met_metadata$omni_comparison == "")] <- "no"
 met_taxa_df2 <- metaphlan_df %>%
   select(study_id, participant_id, collection_type, omni_comparison, taxa)
 # unbatched_part_ids <- met_taxa_df2$participant_id # since unbatched data did not have any, must borrow

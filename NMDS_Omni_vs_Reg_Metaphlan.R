@@ -28,7 +28,8 @@ nmds_omni_reg_comp <- function(met_lev, met_reg, met_lab, sing_lab, N, is_batch)
   # get top taxa
   met_phyla_df <- metaphlan_df %>% 
     filter(omni_comparison == "comparison" &
-             level == met_lev) %>%
+             level == met_lev &
+             batch == is_batch) %>%
     mutate(taxa = str_replace(taxa, met_reg, ""))
   met_phyla_df$batched <- "unbatched"
   met_phyla_df$batched[which(met_phyla_df$batch)] <- "batched"
