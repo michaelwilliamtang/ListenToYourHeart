@@ -98,6 +98,11 @@ met_taxa_df$level <- t_levels[str_count(met_taxa_df$taxa, "__")]
 # unbatched_meta_df <- unbatched_meta_df %>%
   # mutate(participant_id = unbatched_part_ids[study_id])
 
+# filter lvad samples
+lvad <- met_metadata$lvad
+names(lvad) <- met_metadata$study_id
+met_taxa_df <- met_taxa_df %>% filter(lvad[study_id] == 0)
+
 # save
 # tmp <- unbatched_spread_df
 # unbatched_spread_df <- cbind(unbatched_meta_df, tmp)
