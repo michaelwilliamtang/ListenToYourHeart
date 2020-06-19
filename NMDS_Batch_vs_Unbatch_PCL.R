@@ -16,7 +16,7 @@ desc <- "Batch Corrected vs Uncorrected for Omnigene Samples\nNMDS (Bray-Curtis 
 # library(lme4)
 # library(gtools)
 
-load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
+load(file.path(data_dir, paste("Tidy_Filtered_", ds1, ".RData", sep = "")))
 pcl_df <- pcl_pathway_df
 
 nmds_batch_unbatch_comp <- function(pcl_lab, sing_lab, N, coll_type) {
