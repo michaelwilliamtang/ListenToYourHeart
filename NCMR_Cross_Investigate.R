@@ -3,103 +3,57 @@
 
 library(tidyverse)
 
-ncmr_cross_investigate <- function(source_dir1, source_dir2) {
-  print(source_dir1)
-  print(source_dir2)
+ncmr_cross_investigate <- function(source_dir) {
+  print(source_dir)
   
-  # get output loc
-  graph_dir <- file.path("Graphs", "RNA_Seq", paste(source_dir1, source_dir2, "Comparison", sep = "_"))
+  # get locs
+  data_dir <- file.path("Data", source_dir)
+  graph_dir <- file.path("Graphs", "RNA_Seq", paste(source_dir, "Comparison", sep = "_"))
   if (!dir.exists(graph_dir)) dir.create(graph_dir)
   
-  ##### source_dir1
-  
-  # get input loc
-  data_dir <- file.path("Data", source_dir1)
-  
-  # read data and guide
+  # read data
   data <- read.table(file.path(data_dir, "ipop_all.txt"), stringsAsFactors = F)
   data <- data %>% select(-c(V2, V5))
   data$V1 <- gsub("_star_genome.vcf", "", data$V1)
   data$V3 <- gsub("_star_genome.vcf", "", data$V3)
-  guide <- read.table(file.path(data_dir, "new_name_mapping.txt"), sep= "\t", header = 1, stringsAsFactors = F)
-  id_index <- guide$sample.name %>% str_locate("_") - 1 # dynamically finds any length id
-  guide$id <- guide$sample.name %>% substr(0, id_index)
-  guide$id <- gsub("^69", "069", guide$id, perl = T) # regex
-  
   # filter specific
   unmatched <- c("SCGPM_Fiber-iPOP-1_C927Y_L1_unmatched_R1_SCGPM_Fiber-iPOP-1_C927Y_L1_unmatched_R2",
                  "SCGPM_Fiber-iPOP-2_C926V_L8_unmatched_R1_SCGPM_Fiber-iPOP-2_C926V_L8_unmatched_R2")
   data <- data %>% filter(!(V1 %in% unmatched) & !(V3 %in% unmatched))
   
+  # read guides
+  guide <- read.table(file.path(data_dir, "new_name_mapping_1-2.txt"), sep= "\t", header = 1, stringsAsFactors = F)
+  guide2 <- read.table(file.path(data_dir, "new_name_mapping_3.txt"), sep= "\t", header = 1, stringsAsFactors = F)
+  
+  # add identifiers, merge
+  guide$iPOP <- "1-2"
+  guide2$iPOP <- "3"
+  guide <- rbind(guide, guide2)
+  
+  id_index <- guide$sample.name %>% str_locate("_") - 1 # dynamically finds any length id
+  guide$id <- guide$sample.name %>% substr(0, id_index)
+  guide$id <- gsub("^69", "069", guide$id, perl = T) # regex
+  
   # get missing
   missing_rows <- which(!(data$V1 %in% guide$new_full_name))
-  write.csv(data$V[missing_rows], file.path(graph_dir, paste(source_dir1, "Missing.csv", sep = "_")))
+  write.csv(data$V[missing_rows], file.path(graph_dir, paste("Missing.csv", sep = "_")))
   
   # match data with guide
   samples <- guide$sample.name
   names(samples) <- guide$new_full_name
   ids <- guide$id
   names(ids) <- guide$new_full_name
+  iPOP <- guide$iPOP
+  names(iPOP) <- guide$new_full_name
   data <- data %>% filter(V1 %in% guide$new_full_name &
                             V3 %in% guide$new_full_name) %>%
     mutate(V2 = V3,
            corr = V4,
            id = ids[V1],
-           sample = samples[V1],
+           sample = paste(iPOP[V1], samples[V1], sep = "_"), # also add identifers to samp names
            id2 = ids[V2],
-           sample2 = samples[V2]) %>%
+           sample2 = paste(iPOP[V2], samples[V2], sep = "_")) %>%
     select(corr, id, sample, id2, sample2) # get rid of old cols
-  
-  # add identifier and rename to make room for another "data"
-  data1 <- data %>% mutate(sample = paste(source_dir1, sample, sep = "_"),
-                           sample2 = paste(source_dir1, sample2, sep = "_"))
-  
-  ##### source_dir2
-  
-  # get input loc
-  data_dir <- file.path("Data", source_dir2)
-  
-  # read data and guide
-  data <- read.table(file.path(data_dir, "ipop_all.txt"), stringsAsFactors = F)
-  data <- data %>% select(-c(V2, V5))
-  data$V1 <- gsub("_star_genome.vcf", "", data$V1)
-  data$V3 <- gsub("_star_genome.vcf", "", data$V3)
-  guide <- read.table(file.path(data_dir, "new_name_mapping.txt"), sep= "\t", header = 1, stringsAsFactors = F)
-  id_index <- guide$sample.name %>% str_locate("_") - 1 # dynamically finds any length id
-  guide$id <- guide$sample.name %>% substr(0, id_index)
-  guide$id <- gsub("^69", "069", guide$id, perl = T) # regex
-  
-  # filter specific
-  unmatched <- c("SCGPM_Fiber-iPOP-1_C927Y_L1_unmatched_R1_SCGPM_Fiber-iPOP-1_C927Y_L1_unmatched_R2",
-                 "SCGPM_Fiber-iPOP-2_C926V_L8_unmatched_R1_SCGPM_Fiber-iPOP-2_C926V_L8_unmatched_R2")
-  data <- data %>% filter(!(V1 %in% unmatched) & !(V3 %in% unmatched))
-  
-  # get missing
-  missing_rows <- which(!(data$V1 %in% guide$new_full_name))
-  write.csv(data$V[missing_rows], file.path(graph_dir, paste(source_dir2, "Missing.csv", sep = "_")))
-  
-  # match data with guide
-  samples <- guide$sample.name
-  names(samples) <- guide$new_full_name
-  ids <- guide$id
-  names(ids) <- guide$new_full_name
-  data <- data %>% filter(V1 %in% guide$new_full_name &
-                            V3 %in% guide$new_full_name) %>%
-    mutate(V2 = V3,
-           corr = V4,
-           id = ids[V1],
-           sample = samples[V1],
-           id2 = ids[V2],
-           sample2 = samples[V2]) %>%
-    select(corr, id, sample, id2, sample2) # get rid of old cols
-  
-  # add identifier
-  data <- data %>% mutate(sample = paste(source_dir2, sample, sep = "_"),
-                          sample2 = paste(source_dir2, sample2, sep = "_"))
-  
-  ##### combined
-  
-  data <- rbind(data1, data)
   
   # append reversed duplicate of the data
   data2 <- data[,]
@@ -111,6 +65,9 @@ ncmr_cross_investigate <- function(source_dir1, source_dir2) {
                             sample2 = tmp_samp) %>%
     select(-tmp_samp, -tmp_id)
   data <- rbind(data, data2)
+  
+  # write cleaned data
+  write.csv(data, file.path(graph_dir, "Tidy_iPOP.csv"));
   
   # init cumu df
   mismatches_all_samps <- data.frame(samp = character(),
@@ -188,4 +145,4 @@ ncmr_cross_investigate <- function(source_dir1, source_dir2) {
   ggsave(file.path(graph_dir, "Correlations_All.pdf"), plot = last_plot())
 }
 
-ncmr_cross_investigate("iPOP1-2", "iPOP3")
+ncmr_cross_investigate("iPOP1-2-3")
