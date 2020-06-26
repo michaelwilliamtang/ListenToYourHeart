@@ -112,6 +112,10 @@ pcl_pathway_df <- rbind(pcl_pathway_df, pcl_pathway_df2 %>% select(-batch_val))
 # unbatched_meta_df <- unbatched_meta_df %>%
 #   mutate(participant_id = unbatched_part_ids[study_id])
 
+# shift by max neg
+min_val <- min(pcl_pathway_df$val)
+if (min_val < 0) pcl_pathway_df <- pcl_pathway_df %>% mutate(val = val - min_val)
+
 # filter lvad samples
 lvad <- pcl_metadata$lvad
 names(lvad) <- pcl_metadata$study_id
@@ -131,7 +135,8 @@ pcl_pathway_df <- pcl_pathway_df %>% filter(!str_detect(pathway, "UNINTEGRATED")
                                             !str_detect(pathway, "UNMAPPED"))
 save(pcl_pathway_df, pcl_metadata, file = file.path(save_dir, "Tidy_Filtered_PCL.RData"))
 
-# pcl_pathway_df$val <- pcl_pathway_df$val / 100
+max_val <- max(pcl_pathway_df$val)
+pcl_pathway_df$val <- pcl_pathway_df$val / max_val
 # tmp <- tmp / 100
 # unbatched_spread_df <- cbind(unbatched_meta_df, tmp)
-# save(pcl_pathway_df, pcl_metadata, file = file.path(save_dir, "Tidy_Scaled_PCL.RData"))
+save(pcl_pathway_df, pcl_metadata, file = file.path(save_dir, "Tidy_Scaled_Filtered_PCL.RData"))

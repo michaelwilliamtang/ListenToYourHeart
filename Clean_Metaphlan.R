@@ -98,6 +98,10 @@ met_taxa_df$level <- t_levels[str_count(met_taxa_df$taxa, "__")]
 # unbatched_meta_df <- unbatched_meta_df %>%
   # mutate(participant_id = unbatched_part_ids[study_id])
 
+# shift by max neg
+min_val <- min(met_taxa_df$val)
+if (min_val < 0) met_taxa_df <- met_taxa_df %>% mutate(val = val - min_val)
+
 # filter lvad samples
 lvad <- met_metadata$lvad
 names(lvad) <- met_metadata$study_id
