@@ -1,4 +1,4 @@
-# 6/10/20
+# 6/25/20
 # Tidies and cleans metaphlan data, combining batched/unbatched/omni/regular
 
 library(tidyverse)

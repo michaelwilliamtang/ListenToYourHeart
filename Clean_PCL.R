@@ -12,7 +12,7 @@ pcl_df <- read.table(file.path(data_dir, "pathabundance_april_30.csv"), sep = ",
 pcl_df$V1[50] <- paste(pcl_df$V1[50], "b", sep = "_") # dup row
 full_names <- pcl_df$V1
 full_names[184:length(full_names)] <- full_names[184:length(full_names)] %>% 
-  str_replace_all("[\\||:|\\s|\\-|_]", "\\.")
+  str_replace_all("[\\||:|\\s|\\-|_|\\(|\\)]", "\\.")
 # full_names <- pcl_df$V1 %>% path_sanitize()
 rep_names <- full_names
 rep_names[184:length(full_names)] <- 184:length(full_names)
@@ -56,6 +56,8 @@ pcl_df <- pcl_df %>%
   as_tibble()
 # View(pcl_df[,1:100])
 pathways <- 184:ncol(pcl_df)
+colnames(pcl_df)[pathways] <- colnames(pcl_df)[pathways] %>% 
+  str_replace_all("[\\||:|\\s|\\-|_|\\(|\\)]", "\\.")
 pcl_metadata <- pcl_df %>% select(1:183)
 pcl_metadata$omni_comparison[which(pcl_metadata$omni_comparison == "")] <- "no"
 pcl_pathway_df2 <- pcl_df %>%
@@ -120,9 +122,8 @@ pcl_pathway_df$val <- 2 ^ pcl_pathway_df$val - 1
 # unbatched_spread_df <- cbind(unbatched_meta_df, tmp)
 save(pcl_pathway_df, pcl_metadata, file = file.path(save_dir, "Tidy_PCL.RData"))
 
-pcl_pathway_df <- pcl_pathway_df %>% filter(pathway != "UNINTEGRATED" &
-                                              pathway != "UNMAPPED" &
-                                              pathway != "UNINTEGRATED.unclassified")
+pcl_pathway_df <- pcl_pathway_df %>% filter(!str_detect(pathway, "UNINTEGRATED") &
+                                            !str_detect(pathway, "UNMAPPED"))
 save(pcl_pathway_df, pcl_metadata, file = file.path(save_dir, "Tidy_Filtered_PCL.RData"))
 
 # pcl_pathway_df$val <- pcl_pathway_df$val / 100

@@ -3,7 +3,7 @@
 
 library(tidyverse)
 data_dir <- "Data/Tidy"
-graph_dir <- "Graphs/PCL/Batched_vs_Unbatched_Omni_vs_Regular"
+graph_dir <- "Graphs/PCL/Batched_vs_Unbatched_Omni_vs_Regular_Filtered"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "pcl"

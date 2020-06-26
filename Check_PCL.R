@@ -6,12 +6,14 @@ data_dir <- "Data/Tidy"
 summarize <- dplyr::summarize
 ds1 <- "pcl"
 
-check_distribution <- function(logged = F, is_batch = F, coll_type = "omni") {
+check_distribution <- function(logged = F, is_batch = F, coll_type = "omni", filtered = F) {
   
-  graph_dir2 <- "Graphs/PCL/Check_Distribution"
+  graph_dir2 <- file.path("Graphs", "PCL", "Check_Distribution")
   if (logged) graph_dir2 <- paste(graph_dir2, "Log", sep = "_")
+  else if (filtered) graph_dir2 <- paste(graph_dir2, "Filtered", sep = "_")
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
   if (logged) load(file.path(data_dir, paste("Tidy_Log_", ds1, ".RData", sep = "")))
+  else if (filtered) load(file.path(data_dir, paste("Tidy_Filtered_", ds1, ".RData", sep = "")))
   else load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
   pcl_df <- pcl_pathway_df
   
@@ -47,5 +49,5 @@ check_distribution <- function(logged = F, is_batch = F, coll_type = "omni") {
   dev.off()
 }
 
-check_distribution(logged = F, is_batch = F, coll_type = NA)
-check_distribution(logged = T, is_batch = F, coll_type = NA)
+check_distribution(logged = F, filtered = T, is_batch = F, coll_type = NA)
+check_distribution(logged = F, filtered = F, is_batch = F, coll_type = NA)
