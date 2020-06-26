@@ -8,15 +8,20 @@ save_dir <- "Data/Tidy"
 summarize <- dplyr::summarize
 
 # get unbatched data (no participant ids, so we must match those from batched data)
-pcl_df <- read.table(file.path(data_dir, "pathabundance_april_30.csv"), sep = ",", quote = "\"", stringsAsFactors = FALSE)
+pcl_df <- read.table(file.path(data_dir, "pathabundance_april_30.csv"), sep = ",", quote = "\"", 
+                     stringsAsFactors = FALSE)
 pcl_df$V1[50] <- paste(pcl_df$V1[50], "b", sep = "_") # dup row
-full_names <- pcl_df$V1
-full_names[184:length(full_names)] <- full_names[184:length(full_names)] %>% 
+# full_names <- pcl_df$V1
+# full_names[184:length(full_names)] <- full_names[184:length(full_names)] %>% 
+#   str_replace_all("[\\||:|\\s|\\-|_|\\(|\\)]", "\\.")
+# # full_names <- pcl_df$V1 %>% path_sanitize()
+# rep_names <- full_names
+# rep_names[184:length(full_names)] <- 184:length(full_names)
+# rownames(pcl_df) <- rep_names
+clean_names <- pcl_df$V1 %>%
   str_replace_all("[\\||:|\\s|\\-|_|\\(|\\)]", "\\.")
-# full_names <- pcl_df$V1 %>% path_sanitize()
-rep_names <- full_names
-rep_names[184:length(full_names)] <- 184:length(full_names)
-rownames(pcl_df) <- rep_names
+rownames(pcl_df) <- pcl_df$V1
+rownames(pcl_df)[184:length(clean_names)] <- clean_names[184:length(clean_names)]
 pcl_df <- pcl_df %>%
   select(-V1) %>%
   as.matrix() %>% t() %>%
@@ -39,9 +44,9 @@ pcl_pathway_df$val <- as.numeric(pcl_pathway_df$val)
 pcl_pathway_df$val <- log2(pcl_pathway_df$val + 1) # allows for 0's
 pcl_pathway_df$omni_comparison[which(pcl_pathway_df$omni_comparison == "")] <- "no"
 # unbatched_meta_df$omni_comparison[which(unbatched_meta_df$omni_comparison == "")] <- "no"
-pcl_pathway_df$pathway <- as.numeric(pcl_pathway_df$pathway)
-pcl_pathway_df <- pcl_pathway_df %>%
-  mutate(pathway = full_names[pathway])
+# pcl_pathway_df$pathway <- as.numeric(pcl_pathway_df$pathway)
+# pcl_pathway_df <- pcl_pathway_df %>%
+#   mutate(pathway = full_names[pathway])
 # clean spread df too
 # unbatched_spread_df <- unbatched_spread_df %>% 
 #   sapply(as.numeric)
