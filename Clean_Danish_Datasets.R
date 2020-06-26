@@ -26,11 +26,11 @@ met_metadata$comb_id <- comb_id
 print(F)
 table(met_taxa_df$comb_id %>% duplicated()) # check dup
 met_taxa_df <- met_taxa_df %>%
-  gather("taxa", "val", -comb_id)
+  gather("analyte", "val", -comb_id)
 
 # clean name to genus level
 met_reg <- ".*g__"
-met_taxa_df <- met_taxa_df %>% mutate(taxa = str_replace(taxa, met_reg, ""))
+met_taxa_df <- met_taxa_df %>% mutate(analyte = str_replace(analyte, met_reg, ""))
 tidy_df <- met_taxa_df
 tidy_metadata <- met_metadata
 save(tidy_df, tidy_metadata, file = file.path(save_dir, paste0("Tidy_", ds, ".RData")))
@@ -56,7 +56,7 @@ ub_metadata$comb_id <- comb_id
 print(F)
 table(ub_taxa_df$comb_id %>% duplicated()) # check dup
 ub_taxa_df <- ub_taxa_df %>%
-  gather("taxa", "val", -comb_id)
+  gather("analyte", "val", -comb_id)
 ub_taxa_df$val[which(is.na(ub_taxa_df$val))] = 0
 
 # ub_reg <- ".*g__"
@@ -85,7 +85,7 @@ pcl_metadata$comb_id <- comb_id
 print(F)
 table(pcl_pathway_df$comb_id %>% duplicated()) # check dup
 pcl_pathway_df <- pcl_pathway_df %>%
-  gather("pathway", "val", -comb_id)
+  gather("analyte", "val", -comb_id)
 
 # ub_reg <- ".*g__"
 # ub_taxa_df <- ub_taxa_df %>% mutate(taxa = str_replace(taxa, ub_reg, ""))
@@ -111,7 +111,7 @@ tidy_metadata <- met_taxa_df %>%
 met_taxa_df <- met_taxa_df %>%
   select(-c(SampleID, ORIGINAL_SAMPLE_ID, GESTATIONAL_WEEK, TRIMESTER, MOTHER_AGE_AT_CONCEPTION_.DAYS., 
             BABY_BIRTHWEIGHT_.G., BABY_LENGTH_.CM., PARTICIPANT_ID)) %>%
-  gather("taxa", "val", -comb_id)
+  gather("analyte", "val", -comb_id)
 met_taxa_df$val <- as.numeric(met_taxa_df$val)
 
 tidy_df <- met_taxa_df
@@ -140,7 +140,7 @@ tidy_metadata <- met_taxa_df %>%
 met_taxa_df <- met_taxa_df %>%
   select(-c(PATHWAY, ORIGINAL_SAMPLE_ID, GESTATIONAL_WEEK, TRIMESTER, MOTHER_AGE_AT_CONCEPTION_.DAYS., 
             BABY_BIRTHWEIGHT_.G., BABY_LENGTH_.CM., PARTICIPANT_ID)) %>%
-  gather("taxa", "val", -comb_id)
+  gather("analyte", "val", -comb_id)
 # met_taxa_df$taxa <- met_taxa_df$taxa %>% as.numeric()
 # met_taxa_df$taxa <- full_names[met_taxa_df$taxa]
 met_taxa_df$val <- as.numeric(met_taxa_df$val)
