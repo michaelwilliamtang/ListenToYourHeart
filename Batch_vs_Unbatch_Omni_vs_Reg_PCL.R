@@ -3,12 +3,12 @@
 
 library(tidyverse)
 data_dir <- "Data/Tidy"
-graph_dir <- "Graphs/PCL/Batched_vs_Unbatched_Omni_vs_Regular_Filtered"
+graph_dir <- "Graphs/PCL/Batched_vs_Unbatched_Omni_vs_Regular_Scaled_Filtered"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "pcl"
 
-load(file.path(data_dir, paste("Tidy_Filtered_", ds1, ".RData", sep = "")))
+load(file.path(data_dir, paste("Tidy_Scaled_Filtered_", ds1, ".RData", sep = "")))
 pcl_df <- pcl_pathway_df
 
 batch_vs_unbatch_comp <- function(pcl_lab, sing_lab, N, comp_N) {
