@@ -5,7 +5,7 @@ library(tidyverse)
 library(goeveg)
 library(vegan)
 data_dir <- "Data/Tidy"
-graph_dir <- "Graphs/PCL/Unbatched_Omni_vs_Regular"
+graph_dir <- "Graphs/PCL/Unbatched_Omni_vs_Regular_Scaled_Filtered"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "pcl"
@@ -16,7 +16,7 @@ desc <- "Omnigene vs Regular for Unbatched Samples\nNMDS (Bray-Curtis Distance)"
 # library(lme4)
 # library(gtools)
 
-load(file.path(data_dir, paste("Tidy_Filtered_", ds1, ".RData", sep = "")))
+load(file.path(data_dir, paste("Tidy_Scaled_Filterd_", ds1, ".RData", sep = "")))
 pcl_df <- pcl_pathway_df
 
 nmds_omni_reg_comp <- function(pcl_lab, sing_lab, N, is_batch) {
@@ -75,7 +75,7 @@ nmds_omni_reg_comp <- function(pcl_lab, sing_lab, N, is_batch) {
 nmds_omni_reg_comp(pcl_lab = "Pathways", sing_lab = "Pathway", N = 40, is_batch = F)
 
 ### same, but batched
-graph_dir <- "Graphs/PCL/Batched_Omni_vs_Regular"
+graph_dir <- "Graphs/PCL/Batched_Omni_vs_Regular_Scaled_Filtered"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 
 nmds_omni_reg_comp(pcl_lab = "Pathways", sing_lab = "Pathway", N = 40, is_batch = T)

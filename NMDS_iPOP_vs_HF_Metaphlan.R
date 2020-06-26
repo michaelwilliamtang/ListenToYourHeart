@@ -7,7 +7,7 @@ library(tidyverse)
 library(goeveg)
 library(vegan)
 data_dir <- "Data/Tidy"
-graph_dir <- "Graphs/Metaphlan/iPOP_vs_HF"
+graph_dir <- "Graphs/Metaphlan/iPOP_vs_HF_Scaled"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "metaphlan"

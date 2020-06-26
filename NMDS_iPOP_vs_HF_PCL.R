@@ -7,7 +7,7 @@ library(tidyverse)
 library(goeveg)
 library(vegan)
 data_dir <- "Data/Tidy"
-graph_dir <- "Graphs/PCL/iPOP_vs_HF"
+graph_dir <- "Graphs/PCL/iPOP_vs_HF_Scaled_Filtered"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "pcl"
@@ -18,7 +18,7 @@ set.seed(10)
 # library(gtools)
 
 nmds_batch_unbatch_comp_hf <- function(pcl_lab, sing_lab, nyhaExclude = c(), irisComp = F, desc, file_name) {
-  load(file.path(data_dir, paste("Tidy_Filtered_", ds1, ".RData", sep = "")))
+  load(file.path(data_dir, paste("Tidy_Scaled_Filtered_", ds1, ".RData", sep = "")))
   pcl_df <- pcl_pathway_df
   
   graph_dir2 <- file.path(graph_dir, paste(file_name, pcl_lab, sep = "_"))

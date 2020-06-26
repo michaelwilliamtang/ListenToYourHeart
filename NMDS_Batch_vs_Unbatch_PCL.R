@@ -5,7 +5,7 @@ library(tidyverse)
 library(goeveg)
 library(vegan)
 data_dir <- "Data/Tidy"
-graph_dir <- "Graphs/PCL/Omni_Batched_vs_Unbatched"
+graph_dir <- "Graphs/PCL/Omni_Batched_vs_Unbatched_Scaled_Filtered"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "pcl"
@@ -16,7 +16,7 @@ desc <- "Batch Corrected vs Uncorrected for Omnigene Samples\nNMDS (Bray-Curtis 
 # library(lme4)
 # library(gtools)
 
-load(file.path(data_dir, paste("Tidy_Filtered_", ds1, ".RData", sep = "")))
+load(file.path(data_dir, paste("Tidy_Scaled_Filtered_", ds1, ".RData", sep = "")))
 pcl_df <- pcl_pathway_df
 
 nmds_batch_unbatch_comp <- function(pcl_lab, sing_lab, N, coll_type) {
@@ -75,7 +75,7 @@ nmds_batch_unbatch_comp <- function(pcl_lab, sing_lab, N, coll_type) {
 nmds_batch_unbatch_comp(pcl_lab = "Pathways", sing_lab = "Pathway", N = 40, coll_type = "omni")
                         
 ### now, same but with regular
-graph_dir <- "Graphs/PCL/Regular_Batched_vs_Unbatched"
+graph_dir <- "Graphs/PCL/Regular_Batched_vs_Unbatched_Scaled_Filtered"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 desc <- "Batch Corrected vs Uncorrected for Regular Samples\nNMDS (Bray-Curtis Distance)"
 
@@ -83,7 +83,7 @@ desc <- "Batch Corrected vs Uncorrected for Regular Samples\nNMDS (Bray-Curtis D
 nmds_batch_unbatch_comp(pcl_lab = "Pathways", sing_lab = "Pathway", N = 40, coll_type = "regular")
 
 ### now, same but with both
-graph_dir <- "Graphs/PCL/Comparison_Batched_vs_Unbatched"
+graph_dir <- "Graphs/PCL/Comparison_Batched_vs_Unbatched_Scaled_Filtered"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 desc <- "Batch Corrected vs Uncorrected for Comparison Samples\nNMDS (Bray-Curtis Distance)"
 

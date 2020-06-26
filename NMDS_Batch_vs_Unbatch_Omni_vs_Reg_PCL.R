@@ -5,7 +5,7 @@ library(tidyverse)
 library(goeveg)
 library(vegan)
 data_dir <- "Data/Tidy"
-graph_dir <- "Graphs/PCL/Batched_vs_Unbatched_Omni_vs_Regular"
+graph_dir <- "Graphs/PCL/Batched_vs_Unbatched_Omni_vs_Regular_Scaled_Filtered"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "pcl"
@@ -16,7 +16,7 @@ desc <- "Omnigene vs Regular and Batch Corrected vs Uncorrected,\nNMDS (Bray-Cur
 # library(lme4)
 # library(gtools)
 
-load(file.path(data_dir, paste("Tidy_Filtered_", ds1, ".RData", sep = "")))
+load(file.path(data_dir, paste("Tidy_Scaled_Filtered_", ds1, ".RData", sep = "")))
 pcl_df <- pcl_pathway_df
 
 nmds_batch_unbatch_omni_reg_comp <- function(pcl_lab, sing_lab, N) {

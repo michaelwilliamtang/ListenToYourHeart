@@ -5,7 +5,7 @@ library(tidyverse)
 library(goeveg)
 library(vegan)
 data_dir <- "Data/Tidy"
-graph_dir <- "Graphs/PCL/HF_Batched_vs_Unbatched"
+graph_dir <- "Graphs/PCL/HF_Batched_vs_Unbatched_Scaled_Filtered"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "pcl"
@@ -16,7 +16,7 @@ desc <- "Batch Corrected vs Uncorrected, Heart Failure Samples\nNMDS (Bray-Curti
 # library(lme4)
 # library(gtools)
 
-load(file.path(data_dir, paste("Tidy_Filtered_", ds1, ".RData", sep = "")))
+load(file.path(data_dir, paste("Tidy_Scaled_Filtered_", ds1, ".RData", sep = "")))
 pcl_df <- pcl_pathway_df
 
 nmds_batch_unbatch_comp_hf <- function(pcl_lab, sing_lab, N, hf_tok) {
