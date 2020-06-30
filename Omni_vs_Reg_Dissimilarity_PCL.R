@@ -2,13 +2,14 @@
 # Compares omni vs reg dissimilarity for batch/unbatch PCL
 
 library(tidyverse)
+library(ecodist)
 data_dir <- "Data/Tidy"
-graph_dir <- "Graphs/PCL/Unbatched_Omni_vs_Regular_Filtered"
+graph_dir <- "Graphs/PCL/Unbatched_Omni_vs_Regular_Scaled_Filtered"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "pcl"
 
-load(file.path(data_dir, paste("Tidy_Filtered_", ds1, ".RData", sep = "")))
+load(file.path(data_dir, paste("Tidy_Scaled_Filtered_", ds1, ".RData", sep = "")))
 pcl_df <- pcl_pathway_df
 
 omni_reg_comp_dis <- function(pcl_lab, sing_lab, N, is_batch) {
@@ -33,7 +34,7 @@ omni_reg_comp_dis <- function(pcl_lab, sing_lab, N, is_batch) {
   pcl_pathway_mat <- pcl_pathway_mat %>% 
     select(-study_id) %>%
     as.matrix()
-  dist <- pcl_pathway_mat %>% dist() %>% as.matrix()
+  dist <- pcl_pathway_mat %>% bcdist() %>% as.matrix()
   write.table(as.data.frame(dist), file.path(graph_dir2, paste(pcl_lab, "Dissimilarity_Matrix.tsv", sep = "_")),
               sep = "\t")
   
@@ -46,8 +47,8 @@ omni_reg_comp_dis <- function(pcl_lab, sing_lab, N, is_batch) {
   pcl_pathway_mat <- pcl_pathway_mat %>% 
     select(-study_id) %>%
     as.matrix()
-  dist <- pcl_pathway_mat %>% dist() %>% as.matrix()
-  write.table(as.data.frame(dist), file.path(graph_dir2, paste(pcl_lab, "Dissimilarity_Matrix_Filtered.tsv", sep = "_")),
+  dist <- pcl_pathway_mat %>% bcdist() %>% as.matrix()
+  write.table(as.data.frame(dist), file.path(graph_dir2, paste(pcl_lab, "Dissimilarity_Matrix_Subset.tsv", sep = "_")),
             sep = "\t")
 }
 
@@ -55,7 +56,7 @@ omni_reg_comp_dis <- function(pcl_lab, sing_lab, N, is_batch) {
 omni_reg_comp_dis(pcl_lab = "Pathways", sing_lab = "Pathway", N = 40, is_batch = F)
 
 ### same, but batched
-graph_dir <- "Graphs/PCL/Batched_Omni_vs_Regular_Filtered"
+graph_dir <- "Graphs/PCL/Batched_Omni_vs_Regular_Scaled_Filtered"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 
 ### comparing for pcl, pathway

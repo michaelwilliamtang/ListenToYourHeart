@@ -2,6 +2,7 @@
 # Compares omni vs reg dissimilarity for batch/unbatch metaphlan
 
 library(tidyverse)
+library(ecodist)
 data_dir <- "Data/Tidy"
 graph_dir <- "Graphs/Metaphlan/Unbatched_Omni_vs_Regular_Scaled"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
@@ -35,7 +36,7 @@ omni_reg_comp_dis <- function(met_lev, met_reg, met_lab, sing_lab, N, is_batch) 
   met_phyla_mat <- met_phyla_mat %>% 
     select(-study_id) %>%
     as.matrix()
-  dist <- met_phyla_mat %>% dist() %>% as.matrix()
+  dist <- met_phyla_mat %>% bcdist() %>% as.matrix()
   write.table(as.data.frame(dist), file.path(graph_dir2, paste(met_lab, "Dissimilarity_Matrix.tsv", sep = "_")),
               sep = "\t")
   
@@ -48,8 +49,8 @@ omni_reg_comp_dis <- function(met_lev, met_reg, met_lab, sing_lab, N, is_batch) 
   met_phyla_mat <- met_phyla_mat %>% 
     select(-study_id) %>%
     as.matrix()
-  dist <- met_phyla_mat %>% dist() %>% as.matrix()
-  write.table(as.data.frame(dist), file.path(graph_dir2, paste(met_lab, "Dissimilarity_Matrix_Filtered.tsv", sep = "_")),
+  dist <- met_phyla_mat %>% bcdist() %>% as.matrix()
+  write.table(as.data.frame(dist), file.path(graph_dir2, paste(met_lab, "Dissimilarity_Matrix_Subset.tsv", sep = "_")),
             sep = "\t")
 }
 

@@ -70,6 +70,26 @@ nmds_danish <- function(ds1) {
     labs(title = desc)
   plot(gg)
   ggsave(file.path(graph_dir2, paste(ds1, "NMDS2-3.pdf", sep = "_")), plot = last_plot())
+
+  
+  ### for ubiome:
+  # gg <- ggplot(nmds_scores, aes(x = NMDS1, y = NMDS2)) +
+  #   geom_point(size = 3) +
+  #   labs(title = desc)
+  # plot(gg)
+  # ggsave(file.path(graph_dir2, paste(ds1, "NMDS1-2.pdf", sep = "_")), plot = last_plot())
+  # 
+  # gg <- ggplot(nmds_scores, aes(x = NMDS1, y = NMDS3)) +
+  #   geom_point(size = 3) +
+  #   labs(title = desc)
+  # plot(gg)
+  # ggsave(file.path(graph_dir2, paste(ds1, "NMDS1-3.pdf", sep = "_")), plot = last_plot())
+  # 
+  # gg <- ggplot(nmds_scores, aes(x = NMDS2, y = NMDS3)) +
+  #   geom_point(size = 3) +
+  #   labs(title = desc)
+  # plot(gg)
+  # ggsave(file.path(graph_dir2, paste(ds1, "NMDS2-3.pdf", sep = "_")), plot = last_plot())
 }
 
 ### comparing for metaphlan, phyla
