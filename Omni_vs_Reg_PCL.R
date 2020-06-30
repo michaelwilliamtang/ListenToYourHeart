@@ -3,12 +3,12 @@
 
 library(tidyverse)
 data_dir <- "Data/Tidy"
-graph_dir <- "Graphs/PCL/Unbatched_Omni_vs_Regular_Scaled"
+graph_dir <- "Graphs/PCL/Unbatched_Omni_vs_Regular_Scaled_Filtered"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 ds1 <- "pcl"
 
-load(file.path(data_dir, paste("Tidy_Scaled_", ds1, ".RData", sep = "")))
+load(file.path(data_dir, paste("Tidy_Scaled_Filtered_", ds1, ".RData", sep = "")))
 pcl_df <- pcl_pathway_df
 
 omni_reg_comp <- function(pcl_lab, sing_lab, N, comp_N, is_batch) {
@@ -92,7 +92,7 @@ omni_reg_comp <- function(pcl_lab, sing_lab, N, comp_N, is_batch) {
 omni_reg_comp(pcl_lab = "Pathways", sing_lab = "Pathway", N = 40, comp_N = 20, is_batch = F)
 
 ### same, but batched
-graph_dir <- "Graphs/PCL/Batched_Omni_vs_Regular_Scaled"
+graph_dir <- "Graphs/PCL/Batched_Omni_vs_Regular_Scaled_Filtered"
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 
 ### comparing for pcl, pathways
