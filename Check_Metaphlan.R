@@ -6,13 +6,17 @@ data_dir <- "Data/Tidy"
 summarize <- dplyr::summarize
 ds1 <- "metaphlan"
 
-check_distribution <- function(logged = F, met_lev, met_reg, met_lab, is_batch = F, coll_type = "omni") {
+check_distribution <- function (met_lev, met_reg, met_lab, is_batch = F, coll_type = NA, file_prefix = "") {
   print(met_lev)
   
   graph_dir2 <- "Graphs/Metaphlan/Check_Distribution"
-  if (logged) graph_dir2 <- paste(graph_dir2, "Log", sep = "_")
+  if (file_prefix != "") graph_dir2 <- paste(graph_dir2, file_prefix, sep = "_")
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
-  load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
+  if (file_prefix != "") {
+    load(file.path(data_dir, paste("Tidy_", file_prefix, "_", ds1, ".RData", sep = "")))
+  } else {
+    load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
+  }
   metaphlan_df <- met_taxa_df
   
   if (!is.na(is_batch)) metaphlan_df <- metaphlan_df %>%
@@ -56,6 +60,6 @@ names(met_regs) <- met_levs
 ### comparing for metaphlan, phyla
 
 for (i in 1:length(met_levs)) {
-  check_distribution(logged = F, met_lev = met_levs[i], met_reg = met_regs[i], met_lab = met_labs[i],
-                     is_batch = F, coll_type = "omni")
+  check_distribution(met_lev = met_levs[i], met_reg = met_regs[i], met_lab = met_labs[i],
+                     is_batch = T, file_prefix = "Scaled")
 }

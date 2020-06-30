@@ -98,10 +98,6 @@ met_taxa_df$level <- t_levels[str_count(met_taxa_df$taxa, "__")]
 # unbatched_meta_df <- unbatched_meta_df %>%
   # mutate(participant_id = unbatched_part_ids[study_id])
 
-# shift by max neg
-min_val <- min(met_taxa_df$val)
-if (min_val < 0) met_taxa_df <- met_taxa_df %>% mutate(val = val - min_val)
-
 # filter lvad samples
 lvad <- met_metadata$lvad
 names(lvad) <- met_metadata$study_id
@@ -114,11 +110,22 @@ save(met_taxa_df, met_metadata, file = file.path(save_dir, "Tidy_Log_Metaphlan.R
 
 met_taxa_df$level <- t_levels[str_count(met_taxa_df$taxa, "__")]
 met_taxa_df$val <- 2 ^ met_taxa_df$val - 1
+# shift by max neg
+min_val <- min(met_taxa_df$val)
+if (min_val < 0) met_taxa_df <- met_taxa_df %>% mutate(val = val - min_val)
+
 # tmp <- 2 ^ tmp - 1
 # unbatched_spread_df <- cbind(unbatched_meta_df, tmp)
 save(met_taxa_df, met_metadata, file = file.path(save_dir, "Tidy_Metaphlan.RData"))
 
-met_taxa_df$val <- met_taxa_df$val / 100
+met_levs <- c("kingdom", "phylum", "class", "order", "family", "genus", "species")
+met_taxa_df <- met_taxa_df %>% group_by(batch, level, study_id) %>%
+  mutate(total = sum(val)) %>%
+  mutate(max = max(total)) %>%
+  mutate(val = val / max) %>%
+  ungroup() %>%
+  select(-total, -max)
+# met_taxa_df$val <- met_taxa_df$val / 100
 # tmp <- tmp / 100
 # unbatched_spread_df <- cbind(unbatched_meta_df, tmp)
 save(met_taxa_df, met_metadata, file = file.path(save_dir, "Tidy_Scaled_Metaphlan.RData"))

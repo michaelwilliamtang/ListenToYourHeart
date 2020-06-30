@@ -6,15 +6,15 @@ data_dir <- "Data/Tidy"
 summarize <- dplyr::summarize
 ds1 <- "pcl"
 
-check_distribution <- function(logged = F, is_batch = F, coll_type = "omni", filtered = F) {
-  
+check_distribution <- function(is_batch = F, coll_type = NA, file_prefix = "") {
   graph_dir2 <- file.path("Graphs", "PCL", "Check_Distribution")
-  if (logged) graph_dir2 <- paste(graph_dir2, "Log", sep = "_")
-  else if (filtered) graph_dir2 <- paste(graph_dir2, "Filtered", sep = "_")
+  if (file_prefix != "") graph_dir2 <- paste(graph_dir2, file_prefix, sep = "_")
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
-  if (logged) load(file.path(data_dir, paste("Tidy_Log_", ds1, ".RData", sep = "")))
-  else if (filtered) load(file.path(data_dir, paste("Tidy_Filtered_", ds1, ".RData", sep = "")))
-  else load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
+  if (file_prefix != "") {
+    load(file.path(data_dir, paste("Tidy_", file_prefix, "_", ds1, ".RData", sep = "")))
+  } else {
+    load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
+  }
   pcl_df <- pcl_pathway_df
   
   if (!is.na(is_batch)) pcl_df <- pcl_df %>%
@@ -49,5 +49,7 @@ check_distribution <- function(logged = F, is_batch = F, coll_type = "omni", fil
   dev.off()
 }
 
-check_distribution(logged = F, filtered = T, is_batch = F, coll_type = NA)
-check_distribution(logged = F, filtered = F, is_batch = F, coll_type = NA)
+check_distribution(file_prefix = "Scaled_Filtered", is_batch = T)
+check_distribution(file_prefix = "Scaled", is_batch = T)
+check_distribution(file_prefix = "Filtered", is_batch = T)
+check_distribution(is_batch = T)
