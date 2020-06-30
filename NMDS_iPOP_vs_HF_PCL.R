@@ -71,7 +71,7 @@ nmds_batch_unbatch_comp_hf <- function(pcl_lab, sing_lab, nyhaExclude = c(), iri
               autotransform = TRUE)
   dev.off()
   print("NMDS")
-  nmds <- metaMDS(pcl_data, distance = "bray", k = 3, trymax = 500, na.rm = T, autotransform = F)
+  nmds <- metaMDS(pcl_data, distance = "bray", k = 2, trymax = 500, na.rm = T, autotransform = F)
   
   # envfit scores, write dimensions and vector wts
   nmds_scores <- as.data.frame(scores(nmds))  
@@ -93,31 +93,31 @@ nmds_batch_unbatch_comp_hf <- function(pcl_lab, sing_lab, nyhaExclude = c(), iri
       labs(title = paste(desc, pcl_lab, sep = " "))
   }
   plot(gg)
-  ggsave(file.path(graph_dir2, paste(pcl_lab, "NMDS1-2.pdf", sep = "_")), plot = last_plot())
+  ggsave(file.path(graph_dir2, paste(pcl_lab, "NMDS.pdf", sep = "_")), plot = last_plot())
   
-  if (irisComp) {
-    gg <- ggplot(nmds_scores, aes(x = NMDS1, y = NMDS3, fill = hf, color = hf, shape = ir_is)) + 
-      geom_point(size = 3) +  # Set color to vary based on subject
-      labs(title = paste(desc, pcl_lab, sep = " "))
-  } else {
-    gg <- ggplot(nmds_scores, aes(x = NMDS1, y = NMDS3, fill = hf, color = hf)) + 
-      geom_point(size = 3) +  # Set color to vary based on subject
-      labs(title = paste(desc, pcl_lab, sep = " "))
-  }
-  plot(gg)
-  ggsave(file.path(graph_dir2, paste(pcl_lab, "NMDS1-3.pdf", sep = "_")), plot = last_plot())
-  
-  if (irisComp) {
-    gg <- ggplot(nmds_scores, aes(x = NMDS2, y = NMDS3, fill = hf, color = hf, shape = ir_is)) + 
-      geom_point(size = 3) +  # Set color to vary based on subject
-      labs(title = paste(desc, pcl_lab, sep = " "))
-  } else {
-    gg <- ggplot(nmds_scores, aes(x = NMDS2, y = NMDS3, fill = hf, color = hf)) + 
-      geom_point(size = 3) +  # Set color to vary based on subject
-      labs(title = paste(desc, pcl_lab, sep = " "))
-  }
-  plot(gg)
-  ggsave(file.path(graph_dir2, paste(pcl_lab, "NMDS2-3.pdf", sep = "_")), plot = last_plot())
+  # if (irisComp) {
+  #   gg <- ggplot(nmds_scores, aes(x = NMDS1, y = NMDS3, fill = hf, color = hf, shape = ir_is)) + 
+  #     geom_point(size = 3) +  # Set color to vary based on subject
+  #     labs(title = paste(desc, pcl_lab, sep = " "))
+  # } else {
+  #   gg <- ggplot(nmds_scores, aes(x = NMDS1, y = NMDS3, fill = hf, color = hf)) + 
+  #     geom_point(size = 3) +  # Set color to vary based on subject
+  #     labs(title = paste(desc, pcl_lab, sep = " "))
+  # }
+  # plot(gg)
+  # ggsave(file.path(graph_dir2, paste(pcl_lab, "NMDS1-3.pdf", sep = "_")), plot = last_plot())
+  # 
+  # if (irisComp) {
+  #   gg <- ggplot(nmds_scores, aes(x = NMDS2, y = NMDS3, fill = hf, color = hf, shape = ir_is)) + 
+  #     geom_point(size = 3) +  # Set color to vary based on subject
+  #     labs(title = paste(desc, pcl_lab, sep = " "))
+  # } else {
+  #   gg <- ggplot(nmds_scores, aes(x = NMDS2, y = NMDS3, fill = hf, color = hf)) + 
+  #     geom_point(size = 3) +  # Set color to vary based on subject
+  #     labs(title = paste(desc, pcl_lab, sep = " "))
+  # }
+  # plot(gg)
+  # ggsave(file.path(graph_dir2, paste(pcl_lab, "NMDS2-3.pdf", sep = "_")), plot = last_plot())
 }
 
 nmds_batch_unbatch_comp_hf(pcl_lab = "Pathways", sing_lab = "Pathway", 

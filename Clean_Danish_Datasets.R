@@ -49,6 +49,11 @@ table(rownames(ub_metadata) == rownames(ub_taxa_df)) # check match
 # match, build comb id
 # ub_taxa_df <- cbind(comb_id = paste(ub_metadata$PARTICIPANT_ID, ub_metadata$GESTATIONAL_WEEK, sep = "_"), ub_taxa_df,
 #                      stringsAsFactors = F)
+ub_metadata$TRIMESTER = ub_metadata$Whole_gestation_weeks %>% # calc trimester data
+  as.numeric() %>%
+  cut(breaks = c(0, 12, 26, 50), labels = c(1, 2, 3)) %>%
+  as.character()
+ub_metadata$TRIMESTER[is.na(ub_metadata$TRIMESTER)] = ""
 comb_id <- rownames(ub_taxa_df)
 ub_taxa_df$comb_id <- comb_id
 ub_metadata$comb_id <- comb_id

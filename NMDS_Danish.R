@@ -72,7 +72,7 @@ nmds_danish <- function(ds1) {
   ggsave(file.path(graph_dir2, paste(ds1, "NMDS2-3.pdf", sep = "_")), plot = last_plot())
 
   
-  ### for ubiome:
+  ### for old ubiome, no overlay:
   # gg <- ggplot(nmds_scores, aes(x = NMDS1, y = NMDS2)) +
   #   geom_point(size = 3) +
   #   labs(title = desc)
@@ -94,7 +94,7 @@ nmds_danish <- function(ds1) {
 
 ### comparing for metaphlan, phyla
 nmds_danish("Metaphlan_Genus")
-# nmds_danish("uBiome")
+nmds_danish("uBiome")
 nmds_danish("PCL")
 nmds_danish("Metaphlan")
 nmds_danish("Meta_Pathcoverage")
