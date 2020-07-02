@@ -1,5 +1,5 @@
 # 6/25/20
-# Tidies and cleans metaphlan data, combining batched/unbatched/omni/regular
+# Tidies and cleans all Danish datasets
 
 library(tidyverse)
 data_dir <- file.path("Data", "Danish")

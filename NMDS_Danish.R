@@ -1,5 +1,5 @@
 # 6/25/20
-# Create NMDS graph for Danish datasets, omni vs regular
+# Create NMDS graphs for Danish datasets, colored by each metadatum
 
 library(tidyverse)
 library(goeveg)
@@ -14,27 +14,35 @@ set.seed(10)
 # library(lme4)
 library(gtools)
 
-nmds_danish <- function(ds1, env_var, graph_dir_ds, quant) {
+nmds_danish <- function(ds1, env_var, graph_dir_ds, quant, clean_name) {
   print(env_var)
   
   graph_dir2 <- file.path(graph_dir_ds, env_var)
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
-  desc <- paste(ds1, "NMDS, (Bray-Curtis Distance)")
+  desc <- paste(ds1, "NMDS (Bray-Curtis Distance)")
   
   load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
+  
+  # get rid of rows with missing metadata
+  tidy_metadata[tidy_metadata == ""] <- NA
+  missing <- tidy_metadata$comb_id[which(is.na(tidy_metadata[, env_var]))]
+  tidy_df <- tidy_df %>% filter(!(comb_id %in% missing))
+  tidy_metadata <- tidy_metadata %>% filter(!(comb_id %in% missing))
 
   # subset/setup data and metadata
-  met_phyla_df <- tidy_df %>%
+  tidy_df <- tidy_df %>%
     spread(analyte, val)
-  tidy_data <- met_phyla_df %>%
+  tidy_data <- tidy_df %>%
     arrange(comb_id) %>% # align data and metadata
     select(-comb_id) %>%
     as.matrix()
   tidy_metadata <- tidy_metadata %>%
     arrange(comb_id) # align data and metadata
-  tidy_metadata[tidy_metadata == ""] <- NA
+  
+  # rename
   if (quant) {
     tidy_metadata[, env_var] <- quantcut(as.numeric(tidy_metadata[, env_var]), q = 3, na.rm = T)
+    levels(tidy_metadata[, env_var]) <- c("First Tertile", "Second Tertile", "Third Tertile")
   }
 
   # get nmds
@@ -59,19 +67,25 @@ nmds_danish <- function(ds1, env_var, graph_dir_ds, quant) {
 
   gg <- ggplot(nmds_scores, aes(x = NMDS1, y = NMDS2, fill = !!sym(env_var), color = !!sym(env_var))) +
     geom_point(size = 3) +
-    labs(title = desc)
+    labs(title = desc,
+         fill = clean_name,
+         color = clean_name)
   plot(gg)
   ggsave(file.path(graph_dir2, paste(ds1, "NMDS1-2.pdf", sep = "_")), plot = last_plot())
 
   gg <- ggplot(nmds_scores, aes(x = NMDS1, y = NMDS3, fill = !!sym(env_var), color = !!sym(env_var))) +
     geom_point(size = 3) +
-    labs(title = desc)
+    labs(title = desc,
+         fill = clean_name,
+         color = clean_name)
   plot(gg)
   ggsave(file.path(graph_dir2, paste(ds1, "NMDS1-3.pdf", sep = "_")), plot = last_plot())
 
   gg <- ggplot(nmds_scores, aes(x = NMDS2, y = NMDS3, fill = !!sym(env_var), color = !!sym(env_var))) +
     geom_point(size = 3) +
-    labs(title = desc)
+    labs(title = desc,
+         fill = clean_name,
+         color = clean_name)
   plot(gg)
   ggsave(file.path(graph_dir2, paste(ds1, "NMDS2-3.pdf", sep = "_")), plot = last_plot())
 
@@ -104,9 +118,12 @@ nmds_danish_all <- function(ds1) {
   quant_vars <- scan(file.path("Metadata", "Danish_Env", paste0("Quant_", ds1, ".txt")),
                    character(), quote = '', sep = "\t", quiet = T) %>%
               str_replace_all("\\(|\\)", "\\.")
+  clean_names <- scan(file.path("Metadata", "Danish_Env", paste0("Clean_Names_", ds1, ".txt")),
+                     character(), quote = '', sep = "\t", quiet = T)
+  names(clean_names) <- env_vars
   graph_dir_ds <- file.path(graph_dir, ds1)
   if (!dir.exists(graph_dir_ds)) dir.create(graph_dir_ds)
-  for (env_var in env_vars) nmds_danish(ds1, env_var, graph_dir_ds, env_var %in% quant_vars)
+  for (env_var in env_vars) nmds_danish(ds1, env_var, graph_dir_ds, env_var %in% quant_vars, clean_names[env_var])
 }
 
 ### comparing for metaphlan, phyla
