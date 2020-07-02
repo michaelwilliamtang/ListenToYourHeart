@@ -33,6 +33,7 @@ met_reg <- ".*g__"
 met_taxa_df <- met_taxa_df %>% mutate(analyte = str_replace(analyte, met_reg, ""))
 tidy_df <- met_taxa_df
 tidy_metadata <- met_metadata
+colnames(tidy_metadata) <- colnames(tidy_metadata) %>% str_replace_all("\\(|\\)", "\\.")
 save(tidy_df, tidy_metadata, file = file.path(save_dir, paste0("Tidy_", ds, ".RData")))
 
 ### cleaning uBiome
@@ -68,6 +69,7 @@ ub_taxa_df$val[which(is.na(ub_taxa_df$val))] = 0
 # ub_taxa_df <- ub_taxa_df %>% mutate(taxa = str_replace(taxa, ub_reg, ""))
 tidy_df <-ub_taxa_df
 tidy_metadata <- ub_metadata
+colnames(tidy_metadata) <- colnames(tidy_metadata) %>% str_replace_all("\\(|\\)", "\\.")
 save(tidy_df, tidy_metadata, file = file.path(save_dir, paste0("Tidy_", ds, ".RData")))
 
 ### cleaning PCL
@@ -96,6 +98,7 @@ pcl_pathway_df <- pcl_pathway_df %>%
 # ub_taxa_df <- ub_taxa_df %>% mutate(taxa = str_replace(taxa, ub_reg, ""))
 tidy_df <- pcl_pathway_df
 tidy_metadata <- pcl_metadata
+colnames(tidy_metadata) <- colnames(tidy_metadata) %>% str_replace_all("\\(|\\)", "\\.")
 save(tidy_df, tidy_metadata, file = file.path(save_dir, paste0("Tidy_", ds2, ".RData")))
 
 ### cleaning full metaphlan
@@ -120,6 +123,7 @@ met_taxa_df <- met_taxa_df %>%
 met_taxa_df$val <- as.numeric(met_taxa_df$val)
 
 tidy_df <- met_taxa_df
+colnames(tidy_metadata) <- colnames(tidy_metadata) %>% str_replace_all("\\(|\\)", "\\.")
 save(tidy_df, tidy_metadata, file = file.path(save_dir, paste0("Tidy_", ds, ".RData")))
 
 ### cleaning meta pathcoverage
@@ -151,4 +155,5 @@ met_taxa_df <- met_taxa_df %>%
 met_taxa_df$val <- as.numeric(met_taxa_df$val)
 
 tidy_df <- met_taxa_df
+colnames(tidy_metadata) <- colnames(tidy_metadata) %>% str_replace_all("\\(|\\)", "\\.")
 save(tidy_df, tidy_metadata, file = file.path(save_dir, paste0("Tidy_", ds, ".RData")))
