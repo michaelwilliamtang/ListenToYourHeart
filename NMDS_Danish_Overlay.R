@@ -59,29 +59,28 @@ nmds_danish <- function(ds1, env_var, graph_dir_ds, quant, clean_name, env_vars)
   nmds <- metaMDS(tidy_data, distance = "bray", k = 3, trymax = 500, na.rm = T, autotransform = F)
   
   # envfit scores, write dimensions and vector wts
-  # nmds_scores <- as.data.frame(scores(nmds))
-  # nmds_scores <- cbind(nmds_scores, tidy_metadata)
   scrs <- as.data.frame(scores(nmds, display = "sites"))
   scrs <- cbind(scrs, tidy_metadata)
-  # write.table(nmds_scores, row.names = F, file = file.path(graph_dir2, "dimensions.txt"), sep = "\t", quote = FALSE)
   tidy_meta <- as.data.frame(tidy_metadata[, env_var])
-  # colnames(tidy_meta) <- paste0(clean_name, ", ")
+  # colnames(tidy_meta) <- paste0(clean_name, ", ") # include var prefix
   colnames(tidy_meta) <- "" # level only
   envf <- envfit(nmds, tidy_meta, choices = 1:3, perm = 999, na.rm = T)
-  # vector.weights <- scores(envf, display = "vectors")
-  # padjusted <- p.adjust(envf$vectors$pvals, method = "fdr")
-  # vector.weights <- cbind(analyte = rownames(vector.weights), vector.weights, padjust = padjusted)
-  # write.table(vector.weights, row.names = F, file = file.path(graph_dir2, "vector_weights.txt"), sep = "\t",
-  # quote = FALSE)
   scrs2 <- as.data.frame(scores(envf, display = "factors"))
   scrs2 <- cbind(scrs2, lev = rownames(scrs2))
+  
+  # write scores with padjust
+  write.table(scrs, row.names = F, file = file.path(graph_dir2, "dimensions.txt"), sep = "\t", quote = FALSE)
+  padjusted <- p.adjust(envf$factors$pvals, method = "fdr")
+  scrs3 <- cbind(scrs2, padjust = padjusted)
+  write.table(scrs3, row.names = F, file = file.path(graph_dir2, "factor_weights.txt"), 
+                          sep = "\t", quote = FALSE)
   
   gg <- ggplot(scrs) +
     geom_point(aes(x = NMDS1, y = NMDS2, fill = !!sym(env_var), color = !!sym(env_var)), size = 3) +
     coord_fixed() + # fix aspect ratio
     geom_segment(data = scrs2,
                  aes(x = 0, xend = NMDS1, y = 0, yend = NMDS2),
-                     arrow = arrow(length = unit(0.25, "cm")), color = "black") +
+                     arrow = arrow(length = unit(0.25, "cm")), color = "darkgray") +
     geom_text(data = scrs2, aes(x = NMDS1, y = NMDS2, label = lev), size = 3) +
     labs(title = desc,
          fill = clean_name,
@@ -94,7 +93,7 @@ nmds_danish <- function(ds1, env_var, graph_dir_ds, quant, clean_name, env_vars)
     coord_fixed() + # fix aspect ratio
     geom_segment(data = scrs2,
                  aes(x = 0, xend = NMDS2, y = 0, yend = NMDS3),
-                 arrow = arrow(length = unit(0.25, "cm")), color = "black") +
+                 arrow = arrow(length = unit(0.25, "cm")), color = "darkgray") +
     geom_text(data = scrs2, aes(x = NMDS2, y = NMDS3, label = lev), size = 3) +
     labs(title = desc,
          fill = clean_name,
@@ -107,7 +106,7 @@ nmds_danish <- function(ds1, env_var, graph_dir_ds, quant, clean_name, env_vars)
     coord_fixed() + # fix aspect ratio
     geom_segment(data = scrs2,
                  aes(x = 0, xend = NMDS1, y = 0, yend = NMDS3),
-                 arrow = arrow(length = unit(0.25, "cm")), color = "black") +
+                 arrow = arrow(length = unit(0.25, "cm")), color = "darkgray") +
     geom_text(data = scrs2, aes(x = NMDS1, y = NMDS3, label = lev), size = 3) +
     labs(title = desc,
          fill = clean_name,
