@@ -77,6 +77,7 @@ nmds_danish <- function(ds1, env_var, graph_dir_ds, quant, clean_name, env_vars)
   
   gg <- ggplot(scrs) +
     geom_point(aes(x = NMDS1, y = NMDS2, fill = !!sym(env_var), color = !!sym(env_var)), size = 3) +
+    geom_text(aes(x = NMDS1, y = NMDS2, label = PARTICIPANT_ID), size = 3) +
     coord_fixed() + # fix aspect ratio
     geom_segment(data = scrs2,
                  aes(x = 0, xend = NMDS1, y = 0, yend = NMDS2),
@@ -90,6 +91,7 @@ nmds_danish <- function(ds1, env_var, graph_dir_ds, quant, clean_name, env_vars)
   
   gg <- ggplot(scrs) +
     geom_point(aes(x = NMDS2, y = NMDS3, fill = !!sym(env_var), color = !!sym(env_var)), size = 3) +
+    geom_text(aes(x = NMDS2, y = NMDS3, label = PARTICIPANT_ID), size = 3) +
     coord_fixed() + # fix aspect ratio
     geom_segment(data = scrs2,
                  aes(x = 0, xend = NMDS2, y = 0, yend = NMDS3),
@@ -103,6 +105,7 @@ nmds_danish <- function(ds1, env_var, graph_dir_ds, quant, clean_name, env_vars)
   
   gg <- ggplot(scrs) +
     geom_point(aes(x = NMDS1, y = NMDS3, fill = !!sym(env_var), color = !!sym(env_var)), size = 3) +
+    geom_text(aes(x = NMDS1, y = NMDS3, label = PARTICIPANT_ID), size = 3) +
     coord_fixed() + # fix aspect ratio
     geom_segment(data = scrs2,
                  aes(x = 0, xend = NMDS1, y = 0, yend = NMDS3),
