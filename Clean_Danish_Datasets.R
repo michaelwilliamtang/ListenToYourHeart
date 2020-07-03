@@ -66,7 +66,7 @@ ub_taxa_df <- ub_taxa_df %>%
 ub_taxa_df$val[which(is.na(ub_taxa_df$val))] = 0
 
 # recreate part_id with regex
-ub_metadata$PARTICIPANT_ID <- rep(NA, nrow(ub_metadata))
+ub_metadata$PARTICIPANT_ID <- rep("", nrow(ub_metadata))
 r <-  regexpr("P\\K[0-9]", ub_metadata$Denmark_ID, perl = T)
 ub_metadata$PARTICIPANT_ID[r != -1] <- regmatches(ub_metadata$Denmark_ID, r)
 # ub_metadata$comb_id <- paste(ub_metadata$comb_id, ub_metadata$Whole_gestation_weeks, sep = "_")
