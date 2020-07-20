@@ -163,3 +163,6 @@ met_taxa_df$val <- as.numeric(met_taxa_df$val)
 tidy_df <- met_taxa_df
 colnames(tidy_metadata) <- colnames(tidy_metadata) %>% str_replace_all("\\(|\\)", "\\.")
 save(tidy_df, tidy_metadata, file = file.path(save_dir, paste0("Tidy_", ds, ".RData")))
+
+
+source("Danish_Metadata_Match.R")
