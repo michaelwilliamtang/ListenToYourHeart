@@ -1,6 +1,6 @@
 # 6/25/20
 # Create NMDS graphs for Danish datasets, colored by each metadatum,
-#   with factor overlays
+#   with factor overlays, with an option to aggregate per participant
 
 library(tidyverse)
 library(goeveg)
@@ -18,12 +18,13 @@ library(gtools)
 # remotes::install_github("gavinsimpson/ggvegan")
 # library(ggvegan)
 
-nmds_danish <- function(ds1, env_var, graph_dir_ds, quant, clean_name, env_vars) {
+nmds_danish <- function(ds1, env_var, graph_dir_ds, quant, clean_name, env_vars, aggregated) {
   print(env_var)
   
   graph_dir2 <- file.path(graph_dir_ds, env_var)
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
   desc <- paste(ds1, "NMDS (Bray-Curtis Distance)")
+  if (aggregated) desc <- paste0(desc, ", Aggregated Samples")
   
   load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
   
@@ -32,6 +33,25 @@ nmds_danish <- function(ds1, env_var, graph_dir_ds, quant, clean_name, env_vars)
   missing <- tidy_metadata$comb_id[which(is.na(tidy_metadata[, env_var]))]
   tidy_df <- tidy_df %>% filter(!(comb_id %in% missing))
   tidy_metadata <- tidy_metadata %>% filter(!(comb_id %in% missing))
+  
+  # aggregate per participant if specified
+  if (aggregated) {
+    ids <- tidy_metadata$PARTICIPANT_ID
+    names(ids) <- tidy_metadata$comb_id
+    tidy_df <- tidy_df %>%
+      mutate(comb_id = ids[comb_id]) %>% # use part id as comb_id, so only unique per participant
+      group_by(comb_id, analyte) %>%
+      summarize(val = mean(val), .groups = "drop")
+    tidy_metadata <- tidy_metadata %>%
+      mutate(comb_id = PARTICIPANT_ID) %>%
+      select(!! sym(env_var), comb_id, PARTICIPANT_ID)
+    tidy_metadata[, env_var] <- as.numeric(tidy_metadata[, env_var]) # not reliably num
+    tidy_metadata <- aggregate(tidy_metadata[, env_var], list(comb_id = tidy_metadata$comb_id), mean)
+    
+    # minor post-aggregate cleanup
+    colnames(tidy_metadata)[2] = env_var # analyte is renamed as "x" by aggregate
+    tidy_metadata$PARTICIPANT_ID <- tidy_metadata$comb_id # other cols get removed by aggregate
+  }
   
   # subset/setup data and metadata
   tidy_df <- tidy_df %>%
@@ -44,7 +64,7 @@ nmds_danish <- function(ds1, env_var, graph_dir_ds, quant, clean_name, env_vars)
     arrange(comb_id) # align data and metadata
   
   # rename
-  if (quant) {
+  if (quant || env_var == "TRIMESTER") { # trimester data changes over visits, after aggregate may not be integer
     tidy_metadata[, env_var] <- quantcut(as.numeric(tidy_metadata[, env_var]), q = 3, na.rm = T)
     levels(tidy_metadata[, env_var]) <- c("First Tertile", "Second Tertile", "Third Tertile")
   }
@@ -137,7 +157,7 @@ nmds_danish <- function(ds1, env_var, graph_dir_ds, quant, clean_name, env_vars)
   # ggsave(file.path(graph_dir2, paste(ds1, "NMDS2-3.pdf", sep = "_")), plot = last_plot())
 }
 
-nmds_danish_all <- function(ds1) {
+nmds_danish_all <- function(ds1, aggregated = F) {
   print(ds1)
   env_vars <- scan(file.path("Metadata", "Danish_Env", paste0("Env_", ds1, ".txt")),
                    character(), quote = '', sep = "\t", quiet = T) %>%
@@ -148,12 +168,14 @@ nmds_danish_all <- function(ds1) {
   clean_names <- scan(file.path("Metadata", "Danish_Env", paste0("Clean_Names_", ds1, ".txt")),
                       character(), quote = '', sep = "\t", quiet = T)
   names(clean_names) <- env_vars
-  graph_dir_ds <- file.path(graph_dir, ds1)
+  dir_name <- ds1
+  if (aggregated) dir_name <- paste0(dir_name, "_Aggregated")
+  graph_dir_ds <- file.path(graph_dir, dir_name)
   if (!dir.exists(graph_dir_ds)) dir.create(graph_dir_ds)
   for (env_var in env_vars) nmds_danish(ds1, env_var, graph_dir_ds, env_var %in% quant_vars,
-                                        clean_names[env_var], env_vars)
+                                        clean_names[env_var], env_vars, aggregated)
 }
 
 ### comparing for metaphlan, phyla
 datasets <- c("Metaphlan_Genus", "uBiome", "PCL", "Metaphlan", "Meta_Pathcoverage")
-for (ds in datasets) nmds_danish_all(ds)
+for (ds in datasets) nmds_danish_all(ds, T)
