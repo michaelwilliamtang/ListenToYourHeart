@@ -2,9 +2,9 @@
 # Filter and plot analyte-metadatum pairs from Danish data
 
 library(tidyverse)
-corr_dir <- "Data/Danish/Danish_From_GCloud"
-data_dir <- "Data/Tidy_Danish"
-graph_dir <- "Graphs/Danish"
+corr_dir <- file.path("Data", "Danish", "Danish_From_GCloud")
+data_dir <- file.path("Data", "Tidy_Danish")
+graph_dir <- file.path("Graphs", "Danish")
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 
@@ -18,7 +18,7 @@ danish_corr_inv <- function() {
 
   ## metaphlan_genus
   # read and clean
-  file_name <- "metaphlan/pclStatsDanishPart.txt"
+  file_name <- file.path("metaphlan", "pclStatsDanishPart.txt")
   ds1 <- "Metaphlan_Genus"
   corr_df <- read.table(file.path(corr_dir, file_name), sep = "\t", row.names = 1, stringsAsFactors = F,
                          quote = "")

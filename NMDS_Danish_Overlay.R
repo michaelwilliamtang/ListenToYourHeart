@@ -5,8 +5,8 @@
 library(tidyverse)
 library(goeveg)
 library(vegan)
-data_dir <- "Data/Tidy_Danish"
-graph_dir <- "Graphs/Danish"
+data_dir <- file.path("Data", "Tidy_Danish")
+graph_dir <- file.path("Graphs", "Danish")
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 set.seed(10)
