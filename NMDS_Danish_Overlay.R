@@ -172,8 +172,21 @@ nmds_danish_all <- function(ds1, aggregated = F) {
   if (aggregated) dir_name <- paste0(dir_name, "_Aggregated")
   graph_dir_ds <- file.path(graph_dir, dir_name)
   if (!dir.exists(graph_dir_ds)) dir.create(graph_dir_ds)
-  for (env_var in env_vars) nmds_danish(ds1, env_var, graph_dir_ds, env_var %in% quant_vars,
-                                        clean_names[env_var], env_vars, aggregated)
+  for (env_var in env_vars) {
+    tryCatch({
+      nmds_danish(ds1, env_var, graph_dir_ds, env_var %in% quant_vars,
+                  clean_names[env_var], env_vars, aggregated)
+    },
+    error = function(cond) {
+      message(paste0("Error with ", env_var, " in dataset ", ds1))
+      message(cond)
+    },
+    warning = function(cond) {
+      message(paste0("Warning with ", env_var, " in dataset ", ds1))
+      message(cond)
+    }
+    )
+  }
 }
 
 ### comparing for metaphlan, phyla
