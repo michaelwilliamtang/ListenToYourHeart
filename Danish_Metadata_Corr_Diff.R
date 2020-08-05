@@ -1,5 +1,5 @@
-# 7/13/20
-# Filter and plot analyte-metadatum pairs from Danish data
+# 8/4/20
+# Filter and plot analyte-metadatum pairs from Danish data, summarized as a single heatmap
 
 library(tidyverse)
 corr_dir <- file.path("Data", "Danish", "Danish_From_GCloud")
@@ -8,9 +8,12 @@ graph_dir <- file.path("Graphs", "Danish")
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 
+library(gplots)
+palette <- cm.colors
+
 fdr_threshold <- 0.05
 
-danish_corr_inv <- function() {
+danish_corr_heatmap <- function(comp_N) {
   # ref
   clean_names <- c("Gestational Age (weeks)", "Mother's Age at Birth (days)",
                    "Baby Birth Weight (g)", "Baby Birth Length (cm)")
@@ -28,15 +31,13 @@ danish_corr_inv <- function() {
   analytes <- c("GESTATIONAL_WEEK", "MOTHER_AGE_AT_CONCEPTION_.DAYS.", "BABY_BIRTHWEIGHT_.G.", "BABY_LENGTH_.CM.") # column name in metadata
   load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
 
-  graph_dir2 <- file.path(graph_dir, paste(ds1, "Corr_Split", sep = "_"))
+  graph_dir2 <- file.path(graph_dir, paste(ds1, "Corr_Diff", sep = "_"))
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
 
   # plot subsets
   for (i in 1:length(analytes)) {
     meta1 <- analytes[i]
-    graph_dir3 <- file.path(graph_dir2, meta1)
-    if (!dir.exists(graph_dir3)) dir.create(graph_dir3)
-    dci_metadatum(corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir3)
+    dch_metadatum(comp_N, corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir2)
   }
 
 
@@ -50,15 +51,13 @@ danish_corr_inv <- function() {
   analytes <- c("GESTATIONAL_WEEK", "MOTHER_AGE_AT_CONCEPTION_.DAYS.", "BABY_BIRTHWEIGHT_.G.", "BABY_LENGTH_.CM.") # column name in metadata
   load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
 
-  graph_dir2 <- file.path(graph_dir, paste(ds1, "Corr_Split", sep = "_"))
+  graph_dir2 <- file.path(graph_dir, paste(ds1, "Corr_Diff", sep = "_"))
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
 
   # plot subsets
   for (i in 1:length(analytes)) {
     meta1 <- analytes[i]
-    graph_dir3 <- file.path(graph_dir2, meta1)
-    if (!dir.exists(graph_dir3)) dir.create(graph_dir3)
-    dci_metadatum(corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir3)
+    dch_metadatum(comp_N, corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir2)
   }
 
   # diff ref for uBiome
@@ -76,19 +75,19 @@ danish_corr_inv <- function() {
   analytes <- c("GA_Days", "Pre_pregy_weight", "Birth_weight_g") # column name in metadata
   load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
   
-  graph_dir2 <- file.path(graph_dir, paste(ds1, "Corr_Split", sep = "_"))
+  graph_dir2 <- file.path(graph_dir, paste(ds1, "Corr_Diff", sep = "_"))
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
   
   # plot subsets
   for (i in 1:length(analytes)) {
     meta1 <- analytes[i]
-    graph_dir3 <- file.path(graph_dir2, meta1)
-    if (!dir.exists(graph_dir3)) dir.create(graph_dir3)
-    dci_metadatum(corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir3)
+    dch_metadatum(comp_N, corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir2)
   }
 }
 
-dci_metadatum <- function(corr_df, data_df, metadata_df, cname, meta1, meta2, graph_dir3) {
+dch_metadatum <- function(comp_N, corr_df, data_df, metadata_df, cname, meta1, meta2, graph_dir3) {
+  
+  print(meta1)
   
   # convert metadata (default factor for some reason)
   metadata_df[,meta1] <- as.numeric(metadata_df[,meta1])
@@ -96,6 +95,9 @@ dci_metadatum <- function(corr_df, data_df, metadata_df, cname, meta1, meta2, gr
   # get significant
   corr_df <- corr_df %>% filter(!! sym(meta2) < fdr_threshold)
   selected <- corr_df$X.analyte.
+  
+  # setup
+  summ_df <- tibble()
   
   for (sel in selected) {
     tryCatch({
@@ -107,7 +109,7 @@ dci_metadatum <- function(corr_df, data_df, metadata_df, cname, meta1, meta2, gr
       valid_ids <- sel_meta$comb_id[!is.na(sel_meta[,meta1])]
       sel_data <- sel_data %>% filter(comb_id %in% valid_ids) %>% arrange(comb_id)
       sel_meta <- sel_meta %>% filter(comb_id %in% valid_ids) %>% arrange(comb_id)
-      print(table(sel_data$comb_id == sel_meta$comb_id))
+      # print(table(sel_data$comb_id == sel_meta$comb_id))
       comb_sel <- cbind(sel_data %>% select(val, comb_id), meta = sel_meta[, meta1], id = sel_meta$PARTICIPANT_ID)
       
       # test sum == 0
@@ -117,24 +119,16 @@ dci_metadatum <- function(corr_df, data_df, metadata_df, cname, meta1, meta2, gr
         next
       }
       
+      # calculate low, high, diff, split based on metadata median
       med_meta <- comb_sel$meta %>% median()
       comb_sel <- comb_sel %>% mutate(half = ifelse(meta <= med_meta, "low", "high"))
-      comb_sel$half <- factor(comb_sel$half, ordered = T, levels = c("low", "high"))
-      
-      # plot
-      desc <- paste(cname, "vs", sel, "Split Distribution", sep = " ")
-      print(desc)
-      gg <- ggplot(comb_sel, aes(x = half, y = val, fill = half)) +
-        geom_violin(trim = F) +
-        # geom_text(label = comb_sel$comb_id, 
-        #           position = position_dodge(width = 1)) +
-        geom_jitter(position = position_jitter(0.2), aes(color = id)) +
-        xlab(cname) +
-        ylab(sel) +
-        labs(title = desc, color = "Participant", fill = "Half")
-      
-      plot(gg)
-      ggsave(file.path(graph_dir3, paste(sel, meta1, "Corr.pdf", sep = "_")), plot = last_plot())
+      comb_sel <- comb_sel %>% group_by(half) %>%
+        summarize(mean_val = mean(val)) %>%
+        spread(half, mean_val) %>%
+        mutate(diff = high - low,
+               diff_abs = abs(diff))
+      comb_sel$analyte = sel
+      summ_df <- rbind(summ_df, comb_sel)
     },
     error = function(cond) {
       message(paste0("Error with ", sel, " for ", cname))
@@ -146,6 +140,28 @@ dci_metadatum <- function(corr_df, data_df, metadata_df, cname, meta1, meta2, gr
     }
     )
   }
+  
+  # get top N diffs
+  summ_df <- summ_df %>% arrange(desc(diff_abs))
+  write.table(summ_df, row.names = F, file = file.path(graph_dir3, paste(meta1, "Diff_Table.pdf", sep = "_")), sep = "\t", quote = FALSE)
+  comp_N <- min(comp_N, nrow(summ_df)) # set upper bound
+  diff_N_anl <- summ_df$analyte[1:comp_N]
+  comp_df <- summ_df %>% filter(analyte %in% diff_N_anl)
+  gg <- comp_df %>% ggplot(aes(x = reorder(analyte, -diff), y = diff)) +
+    geom_bar(position = "stack", stat = "identity") +
+    xlab(meta1) +
+    ylab("Diff Between Halves, Split By Metadatum\n(top - bottom)") +
+    theme(axis.text.x = element_text(size = 6, angle = 90, hjust = 1))
+  plot(gg)
+  ggsave(file.path(graph_dir3, paste(meta1, "Diff_Bar.pdf", sep = "_")), plot = last_plot())
+  
+  # plot together in heatmap
+  summ_mat <- as.matrix(summ_df %>% select(-analyte))
+  rownames(summ_mat) <- summ_df$analyte
+  pdf(file.path(graph_dir3, paste(meta1, "Diff_Heatmap.pdf", sep = "_")))
+  heatmap.2(summ_mat, Rowv = F, Colv = F, srtCol = 45, cexCol = 1, cexRow = 0.2,
+            col = palette, dendrogram = "none", trace = "none", margins = c(8,15))
+  dev.off()
 }
 
-danish_corr_inv()
+danish_corr_heatmap(80)
