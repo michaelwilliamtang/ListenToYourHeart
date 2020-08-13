@@ -180,15 +180,12 @@ nmds_danish_all <- function(ds1, aggregated = F) {
     error = function(cond) {
       message(paste0("Error with ", env_var, " in dataset ", ds1))
       message(cond)
-    },
-    warning = function(cond) {
-      message(paste0("Warning with ", env_var, " in dataset ", ds1))
-      message(cond)
     }
     )
   }
 }
 
-### comparing for metaphlan, phyla
+### per datset
 datasets <- c("Metaphlan_Genus", "uBiome", "PCL", "Metaphlan", "Meta_Pathcoverage")
 for (ds in datasets) nmds_danish_all(ds, T)
+for (ds in datasets) nmds_danish_all(ds, F)

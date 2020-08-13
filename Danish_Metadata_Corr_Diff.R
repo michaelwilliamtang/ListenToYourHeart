@@ -13,7 +13,7 @@ palette <- cm.colors
 
 fdr_threshold <- 0.05
 
-danish_corr_heatmap <- function(comp_N) {
+danish_corr_diff <- function(comp_N) {
   # ref
   clean_names <- c("Gestational Age (weeks)", "Mother's Age at Birth (days)",
                    "Baby Birth Weight (g)", "Baby Birth Length (cm)")
@@ -37,7 +37,7 @@ danish_corr_heatmap <- function(comp_N) {
   # plot subsets
   for (i in 1:length(analytes)) {
     meta1 <- analytes[i]
-    dch_metadatum(comp_N, corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir2)
+    dcd_metadatum(comp_N, corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir2)
   }
 
 
@@ -57,7 +57,7 @@ danish_corr_heatmap <- function(comp_N) {
   # plot subsets
   for (i in 1:length(analytes)) {
     meta1 <- analytes[i]
-    dch_metadatum(comp_N, corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir2)
+    dcd_metadatum(comp_N, corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir2)
   }
 
   # diff ref for uBiome
@@ -81,11 +81,11 @@ danish_corr_heatmap <- function(comp_N) {
   # plot subsets
   for (i in 1:length(analytes)) {
     meta1 <- analytes[i]
-    dch_metadatum(comp_N, corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir2)
+    dcd_metadatum(comp_N, corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir2)
   }
 }
 
-dch_metadatum <- function(comp_N, corr_df, data_df, metadata_df, cname, meta1, meta2, graph_dir3) {
+dcd_metadatum <- function(comp_N, corr_df, data_df, metadata_df, cname, meta1, meta2, graph_dir3) {
   
   print(meta1)
   
@@ -143,7 +143,7 @@ dch_metadatum <- function(comp_N, corr_df, data_df, metadata_df, cname, meta1, m
   
   # get top N diffs
   summ_df <- summ_df %>% arrange(desc(diff_abs))
-  write.table(summ_df, row.names = F, file = file.path(graph_dir3, paste(meta1, "Diff_Table.pdf", sep = "_")), sep = "\t", quote = FALSE)
+  write.table(summ_df, row.names = F, file = file.path(graph_dir3, paste(meta1, "Diff_Table.tsv", sep = "_")), sep = "\t", quote = FALSE)
   comp_N <- min(comp_N, nrow(summ_df)) # set upper bound
   diff_N_anl <- summ_df$analyte[1:comp_N]
   comp_df <- summ_df %>% filter(analyte %in% diff_N_anl)
@@ -164,4 +164,4 @@ dch_metadatum <- function(comp_N, corr_df, data_df, metadata_df, cname, meta1, m
   dev.off()
 }
 
-danish_corr_heatmap(80)
+# danish_corr_diff(80)
