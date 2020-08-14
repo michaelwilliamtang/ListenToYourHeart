@@ -95,14 +95,16 @@ nmds_danish <- function(ds1, env_var, graph_dir_ds, quant, clean_name, env_vars,
   write.table(scrs3, row.names = F, file = file.path(graph_dir2, "factor_weights.txt"), 
                           sep = "\t", quote = FALSE)
   
+  sz <- 4
+  
   gg <- ggplot(scrs) +
-    geom_point(aes(x = NMDS1, y = NMDS2, fill = !!sym(env_var), color = !!sym(env_var)), size = 3) +
-    geom_text(aes(x = NMDS1, y = NMDS2, label = PARTICIPANT_ID), size = 3) +
+    geom_point(aes(x = NMDS1, y = NMDS2, fill = !!sym(env_var), color = !!sym(env_var)), size = sz) +
+    geom_text(aes(x = NMDS1, y = NMDS2, label = PARTICIPANT_ID), size = sz) +
     coord_fixed() + # fix aspect ratio
     geom_segment(data = scrs2,
                  aes(x = 0, xend = NMDS1, y = 0, yend = NMDS2),
                      arrow = arrow(length = unit(0.25, "cm")), color = "darkgray") +
-    geom_text(data = scrs2, aes(x = NMDS1, y = NMDS2, label = lev), size = 3) +
+    geom_text(data = scrs2, aes(x = NMDS1, y = NMDS2, label = lev), size = sz) +
     labs(title = desc,
          fill = clean_name,
          color = clean_name)
@@ -110,13 +112,13 @@ nmds_danish <- function(ds1, env_var, graph_dir_ds, quant, clean_name, env_vars,
   ggsave(file.path(graph_dir2, paste(ds1, "NMDS1-2.pdf", sep = "_")), plot = last_plot())
   
   gg <- ggplot(scrs) +
-    geom_point(aes(x = NMDS2, y = NMDS3, fill = !!sym(env_var), color = !!sym(env_var)), size = 3) +
-    geom_text(aes(x = NMDS2, y = NMDS3, label = PARTICIPANT_ID), size = 3) +
+    geom_point(aes(x = NMDS2, y = NMDS3, fill = !!sym(env_var), color = !!sym(env_var)), size = sz) +
+    geom_text(aes(x = NMDS2, y = NMDS3, label = PARTICIPANT_ID), size = sz) +
     coord_fixed() + # fix aspect ratio
     geom_segment(data = scrs2,
                  aes(x = 0, xend = NMDS2, y = 0, yend = NMDS3),
                  arrow = arrow(length = unit(0.25, "cm")), color = "darkgray") +
-    geom_text(data = scrs2, aes(x = NMDS2, y = NMDS3, label = lev), size = 3) +
+    geom_text(data = scrs2, aes(x = NMDS2, y = NMDS3, label = lev), size = sz) +
     labs(title = desc,
          fill = clean_name,
          color = clean_name)
@@ -124,13 +126,13 @@ nmds_danish <- function(ds1, env_var, graph_dir_ds, quant, clean_name, env_vars,
   ggsave(file.path(graph_dir2, paste(ds1, "NMDS2-3.pdf", sep = "_")), plot = last_plot())
   
   gg <- ggplot(scrs) +
-    geom_point(aes(x = NMDS1, y = NMDS3, fill = !!sym(env_var), color = !!sym(env_var)), size = 3) +
-    geom_text(aes(x = NMDS1, y = NMDS3, label = PARTICIPANT_ID), size = 3) +
+    geom_point(aes(x = NMDS1, y = NMDS3, fill = !!sym(env_var), color = !!sym(env_var)), size = sz) +
+    geom_text(aes(x = NMDS1, y = NMDS3, label = PARTICIPANT_ID), size = sz) +
     coord_fixed() + # fix aspect ratio
     geom_segment(data = scrs2,
                  aes(x = 0, xend = NMDS1, y = 0, yend = NMDS3),
                  arrow = arrow(length = unit(0.25, "cm")), color = "darkgray") +
-    geom_text(data = scrs2, aes(x = NMDS1, y = NMDS3, label = lev), size = 3) +
+    geom_text(data = scrs2, aes(x = NMDS1, y = NMDS3, label = lev), size = sz) +
     labs(title = desc,
          fill = clean_name,
          color = clean_name)
@@ -188,4 +190,4 @@ nmds_danish_all <- function(ds1, aggregated = F) {
 ### per datset
 datasets <- c("Metaphlan_Genus", "uBiome", "PCL", "Metaphlan", "Meta_Pathcoverage")
 for (ds in datasets) nmds_danish_all(ds, T)
-for (ds in datasets) nmds_danish_all(ds, F)
+# for (ds in datasets) nmds_danish_all(ds, F)
