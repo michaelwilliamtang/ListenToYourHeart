@@ -10,7 +10,7 @@ summarize <- dplyr::summarize
 
 fdr_threshold <- 0.05
 
-danish_corr_inv <- function() {
+danish_corr_inv <- function(comp_N = NA) {
   # ref
   clean_names <- c("Gestational Age (weeks)", "Mother's Age at Birth (days)",
                    "Baby Birth Weight (g)", "Baby Birth Length (cm)")
@@ -28,7 +28,7 @@ danish_corr_inv <- function() {
   analytes <- c("GESTATIONAL_WEEK", "MOTHER_AGE_AT_CONCEPTION_.DAYS.", "BABY_BIRTHWEIGHT_.G.", "BABY_LENGTH_.CM.") # column name in metadata
   load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
 
-  graph_dir2 <- file.path(graph_dir, paste(ds1, "Corr_Split", sep = "_"))
+  graph_dir2 <- file.path(graph_dir, paste(ds1, "Corr_Split_Top", comp_N, sep = "_"))
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
 
   # plot subsets
@@ -36,7 +36,7 @@ danish_corr_inv <- function() {
     meta1 <- analytes[i]
     graph_dir3 <- file.path(graph_dir2, meta1)
     if (!dir.exists(graph_dir3)) dir.create(graph_dir3)
-    dci_metadatum(corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir3)
+    dci_metadatum(corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir3, comp_N)
   }
 
 
@@ -50,7 +50,7 @@ danish_corr_inv <- function() {
   analytes <- c("GESTATIONAL_WEEK", "MOTHER_AGE_AT_CONCEPTION_.DAYS.", "BABY_BIRTHWEIGHT_.G.", "BABY_LENGTH_.CM.") # column name in metadata
   load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
 
-  graph_dir2 <- file.path(graph_dir, paste(ds1, "Corr_Split", sep = "_"))
+  graph_dir2 <- file.path(graph_dir, paste(ds1, "Corr_Split_Top", comp_N, sep = "_"))
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
 
   # plot subsets
@@ -58,7 +58,7 @@ danish_corr_inv <- function() {
     meta1 <- analytes[i]
     graph_dir3 <- file.path(graph_dir2, meta1)
     if (!dir.exists(graph_dir3)) dir.create(graph_dir3)
-    dci_metadatum(corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir3)
+    dci_metadatum(corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir3, comp_N)
   }
 
   # diff ref for uBiome
@@ -76,7 +76,7 @@ danish_corr_inv <- function() {
   analytes <- c("GA_Days", "Pre_pregy_weight", "Birth_weight_g") # column name in metadata
   load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
   
-  graph_dir2 <- file.path(graph_dir, paste(ds1, "Corr_Split", sep = "_"))
+  graph_dir2 <- file.path(graph_dir, paste(ds1, "Corr_Split_Top", comp_N, sep = "_"))
   if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
   
   # plot subsets
@@ -84,11 +84,11 @@ danish_corr_inv <- function() {
     meta1 <- analytes[i]
     graph_dir3 <- file.path(graph_dir2, meta1)
     if (!dir.exists(graph_dir3)) dir.create(graph_dir3)
-    dci_metadatum(corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir3)
+    dci_metadatum(corr_df, tidy_df, tidy_metadata, clean_names[i], meta1, analytes2[i], graph_dir3, comp_N)
   }
 }
 
-dci_metadatum <- function(corr_df, data_df, metadata_df, cname, meta1, meta2, graph_dir3) {
+dci_metadatum <- function(corr_df, data_df, metadata_df, cname, meta1, meta2, graph_dir3, comp_N) {
   
   # convert metadata (default factor for some reason)
   metadata_df[,meta1] <- as.numeric(metadata_df[,meta1])
@@ -97,7 +97,59 @@ dci_metadatum <- function(corr_df, data_df, metadata_df, cname, meta1, meta2, gr
   corr_df <- corr_df %>% filter(!! sym(meta2) < fdr_threshold)
   selected <- corr_df$X.analyte.
   
+  # setup
+  summ_df <- tibble()
+  
   for (sel in selected) {
+    tryCatch({
+      # get metadatum-analyte pair
+      sel_data <- data_df %>% filter(analyte == sel) %>% select(comb_id, val)
+      sel_meta <- metadata_df %>% select(comb_id, !! sym(meta1), PARTICIPANT_ID)
+      
+      # filter missing metadata, merge
+      valid_ids <- sel_meta$comb_id[!is.na(sel_meta[,meta1])]
+      sel_data <- sel_data %>% filter(comb_id %in% valid_ids) %>% arrange(comb_id)
+      sel_meta <- sel_meta %>% filter(comb_id %in% valid_ids) %>% arrange(comb_id)
+      # print(table(sel_data$comb_id == sel_meta$comb_id))
+      comb_sel <- cbind(sel_data %>% select(val, comb_id), meta = sel_meta[, meta1], id = sel_meta$PARTICIPANT_ID)
+      
+      # test sum == 0
+      comb_sum <- comb_sel$meta %>% sum()
+      if (comb_sum == 0) {
+        message(paste0("All zeroes with ", sel, " for ", cname))
+        next
+      }
+      
+      # calculate low, high, diff, split based on metadata median
+      med_meta <- comb_sel$meta %>% median()
+      comb_sel <- comb_sel %>% mutate(half = ifelse(meta <= med_meta, "low", "high"))
+      comb_sel <- comb_sel %>% group_by(half) %>%
+        summarize(mean_val = mean(val)) %>%
+        spread(half, mean_val) %>%
+        mutate(diff = high - low,
+               diff_abs = abs(diff))
+      comb_sel$analyte = sel
+      summ_df <- rbind(summ_df, comb_sel)
+    },
+    error = function(cond) {
+      message(paste0("Error with ", sel, " for ", cname))
+      message(cond)
+    },
+    warning = function(cond) {
+      message(paste0("Warning with ", sel, " for ", cname))
+      message(cond)
+    }
+    )
+  }
+  
+  # get top N diffs
+  summ_df <- summ_df %>% arrange(desc(diff_abs))
+  write.table(summ_df, row.names = F, file = file.path(graph_dir3, paste(meta1, "Diff_Table.tsv", sep = "_")), sep = "\t", quote = FALSE)
+  comp_N <- min(comp_N, nrow(summ_df)) # set upper bound
+  diff_N_anl <- summ_df$analyte[1:comp_N]
+  
+  # plot for each of top N
+  for (sel in diff_N_anl) {
     tryCatch({
       # get metadatum-analyte pair
       sel_data <- data_df %>% filter(analyte == sel) %>% select(comb_id, val)
@@ -148,4 +200,4 @@ dci_metadatum <- function(corr_df, data_df, metadata_df, cname, meta1, meta2, gr
   }
 }
 
-danish_corr_inv()
+danish_corr_inv(50)

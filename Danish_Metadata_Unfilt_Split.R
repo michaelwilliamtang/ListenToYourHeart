@@ -129,7 +129,7 @@ danish_unfilt_all <- function(ds1, selected, comp_N) {
   for (sel in selected) {
     tryCatch({
       load(file.path(data_dir, paste("Tidy_", ds1, ".RData", sep = "")))
-      graph_dir2 <- file.path(graph_dir, paste(ds1, "Unfilt_Split", sep = "_"))
+      graph_dir2 <- file.path(graph_dir, paste(ds1, "Unfilt_Split_Top", comp_N, sep = "_"))
       if (!dir.exists(graph_dir2)) dir.create(graph_dir2)
       
       graph_dir3 <- file.path(graph_dir2, sel)
