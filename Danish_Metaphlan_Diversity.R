@@ -1,8 +1,9 @@
 # 8/17/20
-# Calculates alpha and beta diversity for metaphlan at genus level
+# Calculates and saves alpha diversity for metaphlan at genus level
 
 library(tidyverse)
 library(vegan)
+library(gtools)
 data_dir <- file.path("Data", "Tidy_Danish")
 summarize <- dplyr::summarize
 
@@ -21,9 +22,6 @@ tidy_mat <- tidy_df %>%
 # calc alpha diversity indices
 shannon_vec <- diversity(tidy_mat, index = "shannon")
 simpson_vec <- diversity(tidy_mat, index = "simpson")
-
-# calc beta diversity indices
-# beta_vec <- betadiver(tidy_mat, "w")
 
 # gather and save
 tidy_df <- cbind.data.frame(comb_id = tidy_df$comb_id, shannon = shannon_vec, simpson = simpson_vec)
