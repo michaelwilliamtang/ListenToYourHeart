@@ -72,20 +72,20 @@ diff_heat_trees <- function(ds1) {
   
   for (env_var in env_vars) {
     print(env_var)
+    if (env_var == "TRIMESTER") continue # only use bipartite metadata
     
     # compare
     obj$data$diff_table = compare_groups(obj, "type_abund", cols = tidy_metadata$comb_id, groups = tidy_metadata[,env_var])
     print(obj$data$diff_table)
     
-    # fdr correct
-    obj <- mutate_obs(obj, "diff_table", wilcox_p_value = p.adjust(wilcox_p_value, method = "fdr"))
-    # obj$data$diff_table$log2_median_ratio[obj$data$diff_table$wilcox_p_value > 0.05] <- 0
+    # save text sizes before fdr
+    text_size <- obj$n_subtaxa() * 5
     
     # plot heat trees per group
     pdf(file.path(graph_dir, paste0("Danish_Heat_Tree_", env_var, ".pdf")))
     heat_tree(obj,
               node_label = taxon_names,
-              node_size = n_subtaxa,
+              node_size = text_size,
               node_color = -median_diff, # we actually want treatment 2 - treatment 1
               node_color_axis_label = "Median difference",
               node_color_interval = c(-10, 10), # symmetric
@@ -95,12 +95,16 @@ diff_heat_trees <- function(ds1) {
     ) %>% print()
     dev.off()
     
-    # plot with significance
+    # write data
+    write.csv(obj$data$diff_table, file.path(graph_dir, paste0("Danish_Taxon_Data_", env_var, ".csv")))
+    
+    # fdr correct
+    obj <- mutate_obs(obj, "diff_table", wilcox_p_value = p.adjust(wilcox_p_value, method = "fdr"))
     obj$data$diff_table$log2_median_ratio[obj$data$diff_table$wilcox_p_value > 0.05] <- 0 # filter insignificant
     pdf(file.path(graph_dir, paste0("Danish_Heat_Tree_Significant_", env_var, ".pdf")))
     heat_tree(obj,
               node_label = taxon_names,
-              node_size = n_subtaxa,
+              node_size = text_size,
               node_color = -median_diff, # we actually want treatment 2 - treatment 1
               node_color_axis_label = "Median difference",
               node_color_interval = c(-10, 10), # symmetric
