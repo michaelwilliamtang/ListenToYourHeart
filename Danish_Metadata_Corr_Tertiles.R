@@ -11,6 +11,12 @@ summarize <- dplyr::summarize
 
 fdr_threshold <- 0.05
 
+# debug copy:
+# data_df <- tidy_df
+# metadata_df <- tidy_metadata
+# cname = clean_names[i]
+# meta2 = analytes2[i]
+
 danish_corr_inv <- function(comp_N = NA) {
   # ref
   clean_names <- c("Gestational Age (weeks)", "Mother's Age at Birth (days)",
@@ -170,7 +176,7 @@ dci_metadatum <- function(corr_df, data_df, metadata_df, cname, meta1, meta2, gr
         next
       }
       
-      comb_sel$tertile <- comb_sel$val %>% quantcut(q = 3, na.rm = T)
+      comb_sel$tertile <- comb_sel$meta %>% quantcut(q = 3, na.rm = T)
       levels(comb_sel$tertile) <- c("First Tertile", "Second Tertile", "Third Tertile")
       # med_meta <- comb_sel$meta %>% median()
       # comb_sel <- comb_sel %>% mutate(half = ifelse(meta <= med_meta, "low", "high"))

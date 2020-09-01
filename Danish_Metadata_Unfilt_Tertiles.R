@@ -8,6 +8,12 @@ graph_dir <- file.path("Graphs", "Danish")
 if (!dir.exists(graph_dir)) dir.create(graph_dir)
 summarize <- dplyr::summarize
 
+# debug copy:
+# data_df <- tidy_df
+# metadata_df <- tidy_metadata
+# cname = clean_names[i]
+# meta2 = analytes2[i]
+
 dci_unfilt_metadatum <- function(data_df, metadata_df, cname, meta1, graph_dir3, comp_N) {
   # convert metadata (default factor for some reason)
   metadata_df[,meta1] <- as.numeric(metadata_df[,meta1])
@@ -82,7 +88,7 @@ dci_unfilt_metadatum <- function(data_df, metadata_df, cname, meta1, graph_dir3,
         next
       }
       
-      comb_sel$tertile <- comb_sel$val %>% quantcut(q = 3, na.rm = T)
+      comb_sel$tertile <- comb_sel$meta %>% quantcut(q = 3, na.rm = T)
       levels(comb_sel$tertile) <- c("First Tertile", "Second Tertile", "Third Tertile")
       # med_meta <- comb_sel$meta %>% median()
       # comb_sel <- comb_sel %>% mutate(half = ifelse(meta <= med_meta, "low", "high"))
